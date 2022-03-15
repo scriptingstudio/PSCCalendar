@@ -1,3 +1,13 @@
+# This is a customized edition of Get-Calendar function by [@jdhitsolutions](https://github.com/jdhitsolutions/PSCalendar)
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETERS
+.EXAMPLES
+.INPUTS
+.OUTPUTS
+#>
+
 function Show-Calendar {
     [cmdletbinding(DefaultParameterSetName = "month")]
     [alias('cal','pscal')]
@@ -33,7 +43,7 @@ function Show-Calendar {
         [string]$titleCase, # day name case option
         [switch]$wide, # AbbreviatedDayNames for ShortestDayNames
         #[switch]$grid, # experimental
-        #[switch]$culture, # experimental
+        #[string]$culture, # experimental
         [switch]$dayOff # experimental
     )
 
@@ -85,6 +95,12 @@ function Show-Calendar {
             $endd   = $end -as [datetime]
         }
 
+        if ($culture) {
+            #$OldCulture = $PSCulture
+            #$OldUICulture = $PSUICulture
+            #[System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
+            #[System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture
+        }
         while ($startd -le $endd) {
             $params = @{
                 highlightDate  = $highlightDate        
@@ -98,6 +114,10 @@ function Show-Calendar {
 
             # And now move onto the next month
             $startd = $startd.AddMonths(1)
+        }
+        if ($culture) {
+            #[System.Threading.Thread]::CurrentThread.CurrentCulture = $OldCulture
+            #[System.Threading.Thread]::CurrentThread.CurrentUICulture = $OldUICulture
         }
     } # process
 } # END Show-Calendar
