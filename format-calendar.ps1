@@ -1,3 +1,13 @@
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER
+.EXAMPLE
+.INPUTS
+    Hashtable
+.OUTPUTS
+    String
+#>
 function format-calendar {
 # Calendar formatter; receives data from the collector tier
     [cmdletbinding()]
