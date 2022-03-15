@@ -57,7 +57,7 @@ Count Name
 - Some cultures display day names incorrectly
 
 ## ToDo
-- Basic styling enhancements
+- General styling enhancements
 - International holiday highlighting
 - User-defined culture calendar
 - Adaptive coloring
