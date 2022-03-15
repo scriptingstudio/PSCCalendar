@@ -1,11 +1,13 @@
-# This is a customized edition of Get-Calendar function by [@jdhitsolutions](https://github.com/jdhitsolutions/PSCalendar)
+# This is a customized edition of Get-Calendar function by Jeff Hicks (https://github.com/jdhitsolutions/PSCalendar)
 <#
 .SYNOPSIS
 .DESCRIPTION
-.PARAMETERS
-.EXAMPLES
+.PARAMETER
+.EXAMPLE
 .INPUTS
+    None
 .OUTPUTS
+    String
 #>
 
 function Show-Calendar {
