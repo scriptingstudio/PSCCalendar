@@ -14,7 +14,7 @@ Controller -> Collector -> Formatter
 - Short day names can be different length
 - ShortestDayNames property values can be not unique
 - Visual and calculated length of short names can vary
-- Mon/Sun The beginning of the week is not only Mon/Sun
+- The beginning of the week is not only Mon/Sun
 - If Mon/Sun is not the beginning of the week, what are weekends?
 - No certainty whether Sat/Sun are world-wide weekend/dayoff days
 
