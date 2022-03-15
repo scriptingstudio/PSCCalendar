@@ -1,4 +1,13 @@
-
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER
+.EXAMPLE
+.INPUTS
+    Date
+.OUTPUTS
+    Hashtable
+#>
 function get-calendarMonth {
 # Calendar data collector
 # Output: binary (raw) calendar and month markers
