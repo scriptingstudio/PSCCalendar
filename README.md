@@ -26,9 +26,9 @@ Controller -> Collector -> Formatter
 ```powershell
 [cultureinfo]::GetCultures('allCultures') | . { process {
     [pscustomobject]@{
-     Culture = $_.DisplayName
-     Id      = $_.name
-     FDW     = [cultureinfo]::new($_).DateTimeFormat.FirstDayOfWeek
+        Culture = $_.DisplayName
+        Id      = $_.name
+        FDW     = [cultureinfo]::new($_).DateTimeFormat.FirstDayOfWeek
     }
 }} | Group-Object fdw -NoElement
 
