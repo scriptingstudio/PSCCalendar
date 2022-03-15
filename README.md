@@ -3,7 +3,7 @@
 
 PSCCalendar is a culture-aware PowerShell console calendar engine inspired by @jdhitsolutions PSCalendar module but significantly/totaly refactored. It is not technically a PowerShell module, just snippets/sketches as a sandbox to play with calendar ideas.
 
-## Tier architecture
+## Tier Architecture
 1. Input Controller
 2. Data Collector
 3. Output Formatter
