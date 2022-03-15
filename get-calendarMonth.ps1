@@ -1,4 +1,4 @@
-```powershell
+
 function get-calendarMonth {
 # Calendar data collector
 # Output: binary (raw) calendar and month markers
@@ -47,4 +47,4 @@ function get-calendarMonth {
     }
 } # END get-calendarMonth
 
-```
+
