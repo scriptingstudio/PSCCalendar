@@ -8,7 +8,7 @@ PSCCalendar is a culture-aware PowerShell console calendar engine inspired by [@
 2. Data Collector
 3. Output Formatter
 
-Controller -> Collector -> Formatter
+![pscal](https://user-images.githubusercontent.com/17237559/158593488-c95aa3bd-badd-4fc2-a549-21f790f7a537.png)
 
 ## Notes on Culture (dependencies)
 - Short day names can be different length
