@@ -38,3 +38,15 @@ function transpose-object ([string[]]$header, [switch]$include) {
         }
     }
 } # END transpose-object
+
+function transpose ([string[]]$header) {
+    process {
+        $newheader = if ($header -and $header.count -gt 1) {$header} else {'property','value'}
+        $_.psobject.properties.foreach{
+            [pscustomobject]@{
+                $newheader[0] = $_.name
+                $newheader[1] = $_.value
+            }
+        }
+    }
+}
