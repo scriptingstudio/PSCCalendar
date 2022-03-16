@@ -54,3 +54,60 @@ function transpose ([string[]]$header) {
         }
     }
 } # END transpose
+
+function get-dayoff {
+# Russian dayoff json database
+# по этим базам странные данные: выходные и праздники - одно и то же; поэтому нужно фильтровать выходные (сб и вс)
+# https://github.com/d10xa/holidays-calendar/blob/master/json/consultant2022.json
+# https://raw.githubusercontent.com/d10xa/holidays-calendar/master/json/consultant2022.json
+# https://raw.githubusercontent.com/d10xa/holidays-calendar/master/json/calendar.json
+    ###[CmdletBinding()]
+    param (
+        [ValidateRange(1,12)]$MonthNumber = ([datetime]::now).Month,
+        [ValidateRange(2011,2030)]$YearNumber = ([datetime]::now).Year
+    )
+
+    if (-not $script:ParsedAllDayoff.count) {$script:ParsedAllDayoff = @{}}
+    if (-not $script:ParsedAllDayoff[$YearNumber].count) {
+        $progressPreference = 'silentlyContinue' # hide progress bar
+        $WebRequest = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/d10xa/holidays-calendar/master/json/calendar.json" -ErrorAction SilentlyContinue -UseBasicParsing
+        $progressPreference = 'Continue'
+        if (-not $WebRequest.Content) {return @{}}
+        $WebRequest.Content | ConvertFrom-Json | . { process {
+            ###if (-not $_) {return}
+            ###if (-not $AllDayoff.ContainsKey($y)) {$AllDayoff[$y] = @{}}
+            $_.holidays.foreach{
+                if (-not $_) {return}
+                $y,$m,$d = [int[]]$_.split('-')
+                if (-not $AllDayoff.ContainsKey($y)) {$AllDayoff[$y] = @{}}
+                if (-not $AllDayoff[$y].ContainsKey($m)) {$AllDayoff[$y][$m] = @{}}
+                $AllDayoff[$y][$m][$d] = '1'
+            }
+            @($_.preholidays).foreach{
+                if (-not $_) {return}
+                $y,$m,$d = [int[]]$_.split('-')
+                if (-not $AllDayoff.ContainsKey($y)) {$AllDayoff[$y] = @{}}
+                if (-not $AllDayoff[$y].ContainsKey($m)) {$AllDayoff[$y][$m] = @{}}
+                $AllDayoff[$y][$m][$d] = '2'
+            }
+            @($_.nowork).foreach{
+                if (-not $_) {return}
+                $y,$m,$d = [int[]]$_.split('-')
+                if (-not $AllDayoff.ContainsKey($y)) {$AllDayoff[$y] = @{}}
+                if (-not $AllDayoff[$y].ContainsKey($m)) {$AllDayoff[$y][$m] = @{}}
+                $AllDayoff[$y][$m][$d] = '3'
+            }
+        }}
+        if (-not $AllDayoff.$YearNumber) {return @{}}
+        $script:ParsedAllDayoff[$YearNumber] = $AllDayoff[$YearNumber]
+    } else {$AllDayoff = $ParsedAllDayoff}
+
+    $AllDayoffOfMonth = $AllDayoff[$YearNumber][$MonthNumber]
+    $DaysFoundHash = @{}
+    (1..$([DateTime]::DaysInMonth($YearNumber,$MonthNumber))).foreach{
+        if ($AllDayoffOfMonth.$_) {
+            $DaysFoundHash[$_] = $AllDayoff[$YearNumber][$MonthNumber][$_]
+        }    
+    }
+    $DaysFoundHash            
+} # END get-dayoff
