@@ -10,7 +10,7 @@ function transpose-object ([string[]]$header, [switch]$include, [string]$prefix=
         $table.add($_)
     }
     end {
-        if ($table.count -eq 1) {
+        if ($table.count -eq 1) { # singleton detected
             $newheader = if ($header -and $header.count -gt 1) {$header} else {'property','value'}
             $_.psobject.properties.foreach{
                 [pscustomobject]@{
