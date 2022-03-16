@@ -1,4 +1,5 @@
 function transpose-object ([string[]]$header, [switch]$include) {
+# $include - includes original header in the output object as the first column
     begin {
         $table = [System.Collections.Generic.List[object]]::new()
     }
