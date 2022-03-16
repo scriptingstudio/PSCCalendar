@@ -111,3 +111,14 @@ function get-dayoff {
     }
     $DaysFoundHash            
 } # END get-dayoff
+
+function find-culture ([string]$culture) {
+    if (-not $culture) {$culture = '.*'}
+    [cultureinfo]::GetCultures('allCultures').where{$_.Name -match "$culture"} | . { process {
+        [pscustomobject]@{
+            Culture = $_.DisplayName
+            Id      = $_.Name
+            FDW     = [cultureinfo]::new($_).DateTimeFormat.FirstDayOfWeek
+        }
+    }}
+} # END find-culture
