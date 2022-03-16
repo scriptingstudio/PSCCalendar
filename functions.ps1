@@ -73,14 +73,17 @@ function get-dayoff {
         $WebRequest = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/d10xa/holidays-calendar/master/json/calendar.json" -ErrorAction SilentlyContinue -UseBasicParsing
         $progressPreference = 'Continue'
         if (-not $WebRequest.Content) {return @{}}
+        $AllDayoff = @{}
         $WebRequest.Content | ConvertFrom-Json | . { process {
             ###if (-not $_) {return}
             ###if (-not $AllDayoff.ContainsKey($y)) {$AllDayoff[$y] = @{}}
             $_.holidays.foreach{
                 if (-not $_) {return}
                 $y,$m,$d = [int[]]$_.split('-')
-                if (-not $AllDayoff.ContainsKey($y)) {$AllDayoff[$y] = @{}}
-                if (-not $AllDayoff[$y].ContainsKey($m)) {$AllDayoff[$y][$m] = @{}}
+                if (-not $AllDayoff.ContainsKey($y)) {
+                    $AllDayoff[$y] = @{$m = @{}}
+                }
+                if (-not ($AllDayoff[$y]).ContainsKey($m)) {$AllDayoff[$y][$m] = @{}}
                 $AllDayoff[$y][$m][$d] = '1'
             }
             @($_.preholidays).foreach{
@@ -98,7 +101,7 @@ function get-dayoff {
                 $AllDayoff[$y][$m][$d] = '3'
             }
         }}
-        if (-not $AllDayoff.$YearNumber) {return @{}}
+        if (-not $AllDayoff[$YearNumber].count) {return @{}}
         $script:ParsedAllDayoff[$YearNumber] = $AllDayoff[$YearNumber]
     } else {$AllDayoff = $ParsedAllDayoff}
 
