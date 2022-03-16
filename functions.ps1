@@ -33,9 +33,9 @@ function transpose-object ([string[]]$header, [switch]$include, [string]$prefix=
             if ($include) {$row.($newheader[0]) = $p}
             $i = $start
             # Import data
-            foreach ($v in $table.$p) {
+            foreach ($value in $table.$p) {
                 if ($i -ge $objwidth) {break}
-                $row.($newheader[$i++]) = $v
+                $row.($newheader[$i++]) = $value
             }
             $row
         }
