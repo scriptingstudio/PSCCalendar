@@ -1,5 +1,5 @@
 function transpose-object ([string[]]$header, [switch]$include) {
-	begin {
+    begin {
 		$table = [System.Collections.Generic.List[object]]::new()
 	}
 	process {
