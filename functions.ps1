@@ -56,7 +56,7 @@ function transpose ([string[]]$header) {
 } # END transpose
 
 function get-dayoff {
-# Russian dayoff json database
+# Russian dayoff json database importer
 # по этим базам странные данные: выходные и праздники - одно и то же; поэтому нужно фильтровать выходные (сб и вс)
 # https://github.com/d10xa/holidays-calendar/blob/master/json/consultant2022.json
 # https://raw.githubusercontent.com/d10xa/holidays-calendar/master/json/consultant2022.json
