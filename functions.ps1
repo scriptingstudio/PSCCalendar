@@ -1,3 +1,5 @@
+# A set of miscellaneous functions
+
 function transpose-object ([string[]]$header, [switch]$include) {
 # $include - includes original header in the output object as the first column
     begin {
@@ -49,4 +51,4 @@ function transpose ([string[]]$header) {
             }
         }
     }
-}
+} # END transpose
