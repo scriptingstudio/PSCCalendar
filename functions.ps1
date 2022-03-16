@@ -42,6 +42,7 @@ function transpose-object ([string[]]$header, [switch]$include) {
 } # END transpose-object
 
 function transpose ([string[]]$header) {
+# for singletons only
     process {
         $newheader = if ($header -and $header.count -gt 1) {$header} else {'property','value'}
         $_.psobject.properties.foreach{
