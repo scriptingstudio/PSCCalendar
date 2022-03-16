@@ -24,7 +24,7 @@ function Show-Calendar {
         [ValidateNotNullOrEmpty()]
         [string]$start,
         [Parameter(HelpMessage = "Enter an ending date for the month like 3/1/2020 that is correct for your culture.", ParameterSetName = "span")]
-        [string]$end, # if not set ($start + 1 day)
+        [string]$end, # if not set ($start + 1 day); or 1 month?
 
         [Parameter(HelpMessage = "Specify a collection of dates to highlight in the calendar display.")]
         [ValidateNotNullorEmpty()]
@@ -43,13 +43,20 @@ function Show-Calendar {
         [alias('type')][string]$orientation = 'h',
         [ValidateSet('u','l','t')]
         [string]$titleCase, # day name case option
-        [switch]$wide, # AbbreviatedDayNames for ShortestDayNames
+        [switch]$wide, # uses AbbreviatedDayNames for ShortestDayNames
         #[switch]$grid, # experimental
-        #[string]$culture, # experimental
+        [string]$culture, # experimental [CultureInfo]
         [switch]$dayOff # experimental
     )
 
     Begin {
+        if ($culture) {
+            $OldCulture   = $PSCulture
+            $OldUICulture = $PSUICulture
+            [System.Threading.Thread]::CurrentThread.CurrentCulture   = $culture
+            [System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture
+            $firstDay = [System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek
+        }
         $currCulture = [system.globalization.cultureinfo]::CurrentCulture
         if ($month) {
             $c = [system.threading.thread]::currentThread.CurrentCulture
@@ -97,14 +104,8 @@ function Show-Calendar {
             $endd   = $end -as [datetime]
         }
 
-        if ($culture) {
-            #$OldCulture = $PSCulture
-            #$OldUICulture = $PSUICulture
-            #[System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
-            #[System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture
-        }
         while ($startd -le $endd) {
-            $params = @{
+            $params = @{ # format controls
                 highlightDate  = $highlightDate        
                 noAnsi         = $noAnsi
                 monthOnly      = $monthOnly
@@ -114,12 +115,13 @@ function Show-Calendar {
             if ($orientation) {$params['orientation'] = $orientation}
             get-calendarMonth -start $startd -firstday $firstDay | format-calendar @params
 
-            # And now move onto the next month
-            $startd = $startd.AddMonths(1)
-        }
-        if ($culture) {
-            #[System.Threading.Thread]::CurrentThread.CurrentCulture = $OldCulture
-            #[System.Threading.Thread]::CurrentThread.CurrentUICulture = $OldUICulture
+            $startd = $startd.AddMonths(1) # next month
         }
     } # process
+    End {
+        if ($culture -and $OldCulture) {
+            [System.Threading.Thread]::CurrentThread.CurrentCulture   = $OldCulture
+            [System.Threading.Thread]::CurrentThread.CurrentUICulture = $OldUICulture
+        }
+    }
 } # END Show-Calendar
