@@ -30,7 +30,7 @@ function transpose-object ([string[]]$header, [switch]$include) {
             }
             $i = $start
             foreach ($v in $table.$p) {
-                if ($i -ge $newheader.count) {continue}
+                if ($i -ge $newheader.count) {break}
                 $row.($newheader[$i]) = $v
                 $i++
             }
