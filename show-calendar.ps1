@@ -11,6 +11,7 @@
 #>
 
 function Show-Calendar {
+# Status: in dev
     [cmdletbinding(DefaultParameterSetName = "month")]
     [alias('cal','pscal')]
     param (
@@ -35,7 +36,7 @@ function Show-Calendar {
         [System.DayOfWeek]$firstDay = ([System.Globalization.CultureInfo]::CurrentCulture).DateTimeFormat.FirstDayOfWeek,
 
         [Parameter(HelpMessage = "Do not use any ANSI formatting.")]
-        [alias('plain')][switch]$noANSI,
+        [alias('plain','noansi')][switch]$nostyle,
         [Parameter(HelpMessage = "Do not show any leading or trailing days.")]
         [alias('trim')][switch]$monthOnly,
 
@@ -45,30 +46,33 @@ function Show-Calendar {
         [string]$titleCase, # day name case option
         [switch]$wide, # uses AbbreviatedDayNames for ShortestDayNames
         #[switch]$grid, # experimental
-        [string]$culture, # experimental [CultureInfo]
-        [switch]$dayOff # experimental
+        [string]$culture, # experimental; [CultureInfo]
+
+        [switch]$dayOff # experimental; duplicate $highlightDate?
     )
 
     Begin {
-        if ($culture) {
+        if ($culture -and $culture -match '\w-') {
             $OldCulture   = $PSCulture
             $OldUICulture = $PSUICulture
             [System.Threading.Thread]::CurrentThread.CurrentCulture   = $culture
             [System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture
-            $firstDay = [System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek
-        }
-        $currCulture = [system.globalization.cultureinfo]::CurrentCulture
+            if (-not $PSBoundParameters.ContainsKey('firstDay')) {
+                $firstDay = [System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek
+            }
+        } else {$culture = $null}
+        $curCulture = [system.globalization.cultureinfo]::CurrentCulture
         if ($month) {
             $c = [system.threading.thread]::currentThread.CurrentCulture
             $names = [cultureinfo]::GetCultureInfo($c).DateTimeFormat.Monthnames
             if ($names -notcontains $_) {
                 if ($month -as [int]) {
-                    $month = $currCulture.DateTimeFormat.MonthNames[[int]$month - 1]
+                    $month = $curCulture.DateTimeFormat.MonthNames[[int]$month - 1]
                 }
                 else {
-                    $n = $currCulture.TextInfo.ToTitleCase($month.ToLower())
+                    $n = $curCulture.TextInfo.ToTitleCase($month.ToLower())
                     $i = [array]::IndexOf([system.globalization.cultureinfo]::new('en-us').DateTimeFormat.MonthNames,$n)
-                    $month = $currCulture.DateTimeFormat.MonthNames[$i]
+                    $month = $curCulture.DateTimeFormat.MonthNames[$i]
                     if (-not $month -or $names -notcontains $month) {
                         Throw "You entered an invalid month. Valid choices are $($names -join ',')"
                     }
@@ -76,14 +80,14 @@ function Show-Calendar {
             }
         } else {$month = ([datetime]::today).tostring('MMMM')}
 
-        # enforce NoAnsi if running in the PowerShell ISE; who uses it?
-        if ($host.name -Match "ISE Host") {$noAnsi = $true}
-        if ($noAnsi) {$monthOnly = $true}
+        # Enforce NoAnsi if running in the PowerShell ISE; Is it still used?
+        if ($host.name -Match "ISE Host") {$nostyle = $true}
+        if ($nostyle) {$monthOnly = $true}
 
         $internationalDayOff = ''
     }
     Process {
-        # validate $start and $end
+        # Validate $start and $end
         if ($PSCmdlet.ParameterSetName -eq 'span') {
             if ($start -and $start -as [int]) {$start = "1/$start/$([datetime]::now.Year)"}
             if ($end -and $end -as [int]) {$end = "1/$end/$([datetime]::now.Year)"}
@@ -107,12 +111,13 @@ function Show-Calendar {
         while ($startd -le $endd) {
             $params = @{ # format controls
                 highlightDate  = $highlightDate        
-                noAnsi         = $noAnsi
+                noAnsi         = $nostyle
                 monthOnly      = $monthOnly
                 wide           = $wide
             }
             if ($titleCase)   {$params['titleCase'] = $titleCase}
             if ($orientation) {$params['orientation'] = $orientation}
+            # Get data and format output
             get-calendarMonth -start $startd -firstday $firstDay | format-calendar @params
 
             $startd = $startd.AddMonths(1) # next month
