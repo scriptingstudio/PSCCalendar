@@ -21,8 +21,8 @@
 - No certainty whether Sat/Sun are world-wide weekend/dayoff days
 
 ## Notes on PowerShell (dependencies)
+- Month names can be in lower case
 - PS7: short day names can be in lower case
-- PS7: month names can be in lower case
 - PS7: short day names can be single-char
 - The culture sets in PS7 and PS5 differ (.NET versions differ)
 ```powershell
