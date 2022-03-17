@@ -15,7 +15,7 @@
 ## Notes on Culture (dependencies)
 - Short day names can be different length
 - ShortestDayNames property values can be not unique
-- Visual and calculated length of short names can vary
+- Visual and calculated length of short names can vary (seems to be a font rendering issue)
 - The beginning of the week is not only Mon/Sun
 - If Mon/Sun is not the beginning of the week, what are weekends?
 - No certainty whether Sat/Sun are world-wide weekend/dayoff days
