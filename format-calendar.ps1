@@ -10,6 +10,7 @@
 #>
 function format-calendar {
 # Calendar formatter; receives data from the collector tier
+# Input: hashtable
     [cmdletbinding()]
     param (
         [Parameter(Position=0, Mandatory, ValueFromPipeline)]
@@ -23,8 +24,9 @@ function format-calendar {
         [ValidateSet('u','l','t')]
         [string]$titleCase, # day name case option
         [switch]$wide, # uses AbbreviatedDayNames for ShortestDayNames
+
         #[switch]$noWeekend, # do not highlight weekends
-        [switch]$dayOff # experimental; holiday list
+        [switch]$dayOff # experimental; holiday list; duplicate $highlightDate?
     )
 
     $calendar  = $inputObject.calendar
@@ -145,9 +147,10 @@ function format-calendar {
                 "{0}{1}{2}" -f $calendarStyle.DayofWeek, $d, "$esc[0m"
             }
         }    
-    } else { # vertical calendar; not finished
+    } 
+    else { # vertical calendar; not finished
         $calendar = ($calendar | Select-Object $calHeader)
-        # style issue: gaps between columns are not equal if all values less 10
+        # style issue (doubtful): gaps between columns are not equal if all values less 10
         $maxw = ($weekdays.foreach{$calendar[1].$_.day.tostring().length} | Measure-Object -Maximum).Maximum
         $month = foreach ($name in $weekdays) {
             $i = 0 # column counter; used to resolve style issue
@@ -165,7 +168,7 @@ function format-calendar {
                 } else {
                     $d = $day.day
                 }
-                # adjust the gap before column 2 if all values less 10
+                # adjust the gap before column 2 if all values less 10; but this breaks visual regular structure
                 if ($i -eq 1 -and $maxw -eq 1) {"$d"}
                 else {"$d".padleft($headWidth, ' ')}
                 $i++
@@ -180,7 +183,7 @@ function format-calendar {
 
     # Finalize format
     $plainHead = '{0} {1}' -f $curMonth.tostring('MMMM'), $curMonth.year
-    if ($psversiontable.PSVersion.Major -gt 5) { # always TitleCase style?
+    if ($psversiontable.PSVersion.Major -gt 5 -or $titleCase -eq 't') {
         $plainHead = $culture.TextInfo.ToTitleCase($plainHead.ToLower())
     }
     $head = if ($noStyle) {$plainHead} else {
@@ -192,12 +195,12 @@ function format-calendar {
         (10*$headWidth - $plainhead.Length) / 2 + 2
     }
     $p = " " * $pad
+    $titleMargin = if ($noStyle) {''} else {"`n"}
     # Output
-    "`n$p$head`n"
+    "`n$p$head`n" # newline (Bmargin) after the month title or just in plain mode?
     if ($orientation -eq 'h') {
         $days -join $separator
         if ($noStyle) {($days -join $separator) -replace '\w','-'}
     }
     $month
 } # END format-calendar
-
