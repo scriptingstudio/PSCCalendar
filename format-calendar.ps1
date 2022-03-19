@@ -20,7 +20,8 @@ function format-calendar {
         [alias('plain','noansi')][switch]$noStyle,
         [ValidateSet('h','v')][alias('type')]
         [string]$orientation = 'h',
-        [alias('trim')][switch]$monthOnly, # cuts trailing days
+        [switch]$monthOnly, # month title style; displays no year
+        [switch]$trim, # cuts trailing days
         [ValidateSet('u','l','t')]
         [string]$titleCase, # day name case option
         [switch]$wide, # uses AbbreviatedDayNames for ShortestDayNames
@@ -110,7 +111,7 @@ function format-calendar {
                 $trails = $false
                 $cm = $curMonth.month -ne $week.$day.month
                 if ($cm) {
-                    if ($monthOnly) {
+                    if ($trim) {
                         $day = $null
                         $d = ' '
                     } else {
@@ -158,7 +159,7 @@ function format-calendar {
                 $trails = $false
                 $cm = $curMonth.month -ne $day.month
                 if ($cm) {
-                    if ($monthOnly) {
+                    if ($trim) {
                         $day = $null
                         $d = ' '
                     } else {
@@ -182,7 +183,8 @@ function format-calendar {
     } # end orientation formatter
 
     # Finalize format
-    $plainHead = '{0} {1}' -f $curMonth.tostring('MMMM'), $curMonth.year
+    $plainHead = if ($monthOnly) {$curMonth.tostring('MMMM')} 
+    else {'{0} {1}' -f $curMonth.tostring('MMMM'), $curMonth.year}
     if ($psversiontable.PSVersion.Major -gt 5 -or $titleCase -eq 't') {
         $plainHead = $culture.TextInfo.ToTitleCase($plainHead.ToLower())
     }
@@ -190,14 +192,14 @@ function format-calendar {
         "{0}{1}{2}" -f $calendarStyle.title, $plainhead, "$esc[0m"
     }
     [int]$pad = if ($orientation -eq 'v') {
-        (($calendar.count+1)*($headWidth+1) - $plainhead.Length) / 2 + 1
+        (($calendar.count+1)*($headWidth+1) - $plainhead.Length) / 2 + 2
     } else {
         (10*$headWidth - $plainhead.Length) / 2 + 2
     }
     $p = " " * $pad
     $titleMargin = if ($noStyle) {''} else {"`n"}
     # Output
-    "`n$p$head`n" # newline (Bmargin) after the month title or just in plain mode?
+    "`n$p$head`n" # newline (btm margin) after the month title or only in plain mode?
     if ($orientation -eq 'h') {
         $days -join $separator
         if ($noStyle) {($days -join $separator) -replace '\w','-'}
