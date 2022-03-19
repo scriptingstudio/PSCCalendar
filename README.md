@@ -62,7 +62,7 @@ Count Name
 ```
 
 ## How to use
-- copy PSCCalendar sources to your script or dotsource it to PowerShell console/terminal
+- Copy PSCCalendar sources to your script or dotsource it to PowerShell console/terminal
 - See examples [here](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md)
 
 ## Known Issues
