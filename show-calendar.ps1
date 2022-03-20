@@ -2,6 +2,7 @@
 
 function Show-Calendar {
 # Status: in dev
+# begin,process,end blocks are useless if pileline-awareness is not configured
     [cmdletbinding(DefaultParameterSetName = "month")]
     [alias('cal','pscal')]
     param (
@@ -58,7 +59,7 @@ function Show-Calendar {
             if (-not $PSBoundParameters.ContainsKey('firstDay')) {
                 [System.DayOfWeek]$firstDay = [System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek
             }
-            #if (-not $PSBoundParameters.ContainsKey('month')) {}
+            if (-not $PSBoundParameters.ContainsKey('month')) {$month = [datetime]::today.tostring('MMMM')}
             $curCulture = [System.Threading.Thread]::CurrentThread.CurrentCulture
         }
         if ($month) {
@@ -103,9 +104,18 @@ function Show-Calendar {
 
         # Figure out the first day of the start and end months
         if ($pscmdlet.ParameterSetName -eq "month") {
-            $monthid = try {[datetime]::parse("1 $month $year").month} catch {}
-            #if (-not $monthid) {Throw "Unknown culture issue detected."}
-            if (-not $monthid) {$monthid = [datetime]::today.month}
+            # !!! not all cultures tested
+            # adjust date format to specified/default culture
+            $ldp = [string[]][char[]]($curCulture.DateTimeFormat.LongDatePattern.toupper())
+            $y,$m,$d = foreach ($item in 'Y','M','D') {[array]::indexof($ldp,$item)}
+            $s = $y,$m,$d | measure-object -Minimum -Maximum
+            $p1 = if ($s.Maximum -eq $d) {2} elseif ($s.Minimum -eq $d) {0} else {1}
+            $p2 = if ($s.Maximum -eq $m) {2} elseif ($s.Minimum -eq $m) {0} else {1}
+            $p3 = if ($s.Maximum -eq $y) {2} elseif ($s.Minimum -eq $y) {0} else {1}
+            $dateformat = "{$p3} {$p2} {$p1}" -f $year, $month, 1
+            $monthid = try {[datetime]::parse($dateformat).month} catch {}
+            if (-not $monthid) {Throw "Incorrect date format for '$($curCulture.name)' culture."}
+            #if (-not $monthid) {$monthid = [datetime]::today.month}
             $startd  = [datetime]::new($year, $monthid, 1)
             $endd    = $startd.date
         } else {
