@@ -104,7 +104,7 @@ function Show-Calendar {
 
         # Figure out the first day of the start and end months
         if ($pscmdlet.ParameterSetName -eq "month") {
-            # !!! not all cultures tested
+            <## !!! not all cultures tested; japan was a problem !!!DELETE!!!
             # adjust date format to specified/default culture
             $ldp = [string[]][char[]]($curCulture.DateTimeFormat.LongDatePattern.toupper())
             $y,$m,$d = foreach ($item in 'Y','M','D') {[array]::indexof($ldp,$item)}
@@ -117,7 +117,10 @@ function Show-Calendar {
             if (-not $monthid) {Throw "Incorrect date format for '$($curCulture.name)' culture."}
             #if (-not $monthid) {$monthid = [datetime]::today.month}
             $startd  = [datetime]::new($year, $monthid, 1)
-            $endd    = $startd.date
+            $endd    = $startd.date#>
+            $monthid = [array]::IndexOf($curCulture.DateTimeFormat.MonthNames,$month)
+            $startd  = [datetime]::new($year, $mmonthid + 1, 1)
+            $endd    = $startd
         } else {
             $startd = $start -as [datetime]
             $endd   = $end -as [datetime]
