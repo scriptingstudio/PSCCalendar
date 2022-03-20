@@ -6,10 +6,10 @@ function Show-Calendar {
     [alias('cal','pscal')]
     param (
         [Parameter(Position = 1, ParameterSetName = "month")]
-        [string]$month,
+        [string]$month = [datetime]::today.tostring('MMMM'),
         [Parameter(Position = 2, ParameterSetName = "month")]
         [ValidatePattern('^\d{4}$')]
-        [int]$year = ([datetime]::today).year,
+        [int]$year = [datetime]::today.year,
 
         [Parameter(Mandatory, HelpMessage = "Enter the start of a month like 1/1/2020 that is correct for your culture.", ParameterSetName = "span")]
         [ValidateNotNullOrEmpty()]
@@ -45,10 +45,9 @@ function Show-Calendar {
 
     Begin {
         $curCulture = [system.globalization.cultureinfo]::CurrentCulture
-        if ($culture) {
+        if ($culture) { # not finished
             $c = try {[cultureinfo]::GetCultureInfo($culture)} catch {}
-            if (-not $c) { # or display calendar in current culture?
-                ####$culture = [cultureinfo]::CurrentCulture.Name # autocorrection
+            if (-not $c) { # or display calendar in current culture? - autocorrection
                 ##$culture = $null
                 Throw "Invalid culture ID specified. Find desired culture ID with command [cultureinfo]::GetCultures('allCultures')"
             } # else { 
@@ -59,6 +58,7 @@ function Show-Calendar {
             if (-not $PSBoundParameters.ContainsKey('firstDay')) {
                 [System.DayOfWeek]$firstDay = [System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek
             }
+            #if (-not $PSBoundParameters.ContainsKey('month')) {}
             $curCulture = [System.Threading.Thread]::CurrentThread.CurrentCulture
         }
         if ($month) {
@@ -82,7 +82,7 @@ function Show-Calendar {
                     }
                 }
             }
-        } else {$month = ([datetime]::today).tostring('MMMM')}
+        } #else {$month = [datetime]::today.tostring('MMMM')}
 
         # Enforce NoStyle if running in the PowerShell ISE; Is it still used?
         if ($host.name -Match "ISE Host") {$nostyle = $true}
@@ -103,7 +103,9 @@ function Show-Calendar {
 
         # Figure out the first day of the start and end months
         if ($pscmdlet.ParameterSetName -eq "month") {
-            $monthid = [datetime]::parse("1 $month $year").month
+            $monthid = try {[datetime]::parse("1 $month $year").month} catch {}
+            #if (-not $monthid) {Throw "Unknown culture issue detected."}
+            if (-not $monthid) {$monthid = [datetime]::today.month}
             $startd  = [datetime]::new($year, $monthid, 1)
             $endd    = $startd.date
         } else {
@@ -122,10 +124,11 @@ function Show-Calendar {
             }
             if ($titleCase)   {$params['titleCase'] = $titleCase}
             if ($orientation) {$params['orientation'] = $orientation}
+
             # Get data and format output
             get-calendarMonth -start $startd -firstday $firstDay | format-calendar @params
 
-            $startd = $startd.AddMonths(1) # next month
+            try {$startd = $startd.AddMonths(1)} catch {break} # next month
         }
     } # process
     End {
