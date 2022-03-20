@@ -90,7 +90,7 @@ Mo  Tu  We  Th  Fr  Sa  Su
 21  22  23  24  25  26  27
 28  29  30  31   1   2   3
 ```
-### Example 6: Select the other culture 
+### Example 6: Select another culture 
 ```powershell
 Show-Calendar -culture fr-fr -trim
 
