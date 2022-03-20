@@ -69,9 +69,8 @@ Count Name
 - Some cultures display day names incorrectly
 
 ## ToDo
-- User-defined culture calendar
+- Multicolumn (grid) by month output
 - International holiday highlighting
 - Adaptive coloring
-- Multicolumn (grid) by month output
 - General styling improvements
 - Controller parameters optimization
