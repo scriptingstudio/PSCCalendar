@@ -66,7 +66,7 @@ Count Name
 - See examples [here](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md)
 
 ## Known Issues
-- Some cultures display day names incorrectly
+- Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
 
 ## ToDo
 - Multicolumn (grid) by month output
