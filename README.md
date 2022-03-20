@@ -69,6 +69,7 @@ Count Name
 - Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
 
 ## ToDo
+- Fix culture issues
 - Multicolumn (grid) by month output
 - International holiday highlighting
 - Adaptive coloring
