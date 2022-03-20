@@ -1,13 +1,3 @@
-<#
-.SYNOPSIS
-.DESCRIPTION
-.PARAMETER
-.EXAMPLE
-.INPUTS
-    Hashtable
-.OUTPUTS
-    String
-#>
 function format-calendar {
 # Calendar formatter; receives data from the collector tier
 # Input: hashtable
@@ -84,12 +74,15 @@ function format-calendar {
     # in some cultures short day names can vary in length, calculate the maximum width
     # in some cultures visual and calculated length can vary - font rendering issue
     $max = ($abbreviated.foreach{$_.length} | Measure-Object -Maximum).Maximum
+    # PROBLEM: in some cultures 1 char takes 2 positions on screen
+    #if ($max -lt 2) {$max = 2}
     $abbreviated = $abbreviated.foreach{$_.padleft($max,' ')}
     
-    $days      = $abbreviated[$weekindex]
+    $days      = $abbreviated[$weekindex].foreach{$_.replace('.','')}
     $weekdays  = $days
-    $headWidth = $weekdays[0].length
     $weekend   = $weekdays[$weekend]
+    $headWidth = $weekdays[0].length
+    if ($headWidth -lt 2) {$headWidth = 2}
     if ($titleCase) {
         $weekdays = switch ($titleCase) {
             'u' {$weekdays.foreach{$_.toupper()}}
