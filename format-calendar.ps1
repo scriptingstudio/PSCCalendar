@@ -184,10 +184,11 @@ function format-calendar {
     $head = if ($noStyle) {$plainHead} else {
         "{0}{1}{2}" -f $calendarStyle.title, $plainhead, "$esc[0m"
     }
+    $padhead = $separator.count
     [int]$pad = if ($orientation -eq 'v') {
-        (($calendar.count+1)*($headWidth+1) - $plainhead.Length) / 2 + 2
+        (($calendar.count+1)*(2 + $padhead) + $headWidth + 1 - $plainhead.Length) / 2
     } else {
-        (10*$headWidth - $plainhead.Length) / 2 + 2
+        (7*($headWidth + $padhead) - $plainhead.Length) / 2 + 2
     }
     $p = " " * $pad
     $titleMargin = if ($noStyle) {''} else {"`n"}
