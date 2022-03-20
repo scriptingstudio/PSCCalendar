@@ -104,6 +104,20 @@ lu  ma  me  je  ve  sa  di
 28  29  30  31
 ```
 
+### Example 7: Culture font rendering anomalies 
+```powershell
+Show-Calendar -culture zh-CN -trim
+
+    三月 2022
+
+一  二  三  四  五  六  日
+   1  2  3  4  5  6
+7  8  9  10  11  12  13
+14  15  16  17  18  19  20
+21  22  23  24  25  26  27
+28  29  30  31
+```
+
 ## PARAMETERS
 ### -Month
 Selects a month to display. The command will default to the current year unless otherwise specified. Month numbers are accepted.
