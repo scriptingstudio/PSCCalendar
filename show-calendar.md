@@ -139,6 +139,7 @@ Show-Calendar -culture ar-QA -trim
 19  20  21  22  23  24  25
 26  27  28  29  30  31
 ```
+Cases 1 and 2 are actually correct. Visual shift is due to Markdown oddities.
 
 ## PARAMETERS
 ### -Month
