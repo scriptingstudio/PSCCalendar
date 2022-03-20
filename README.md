@@ -16,12 +16,12 @@ README.md
 
 ![pscal](https://user-images.githubusercontent.com/17237559/158593488-c95aa3bd-badd-4fc2-a549-21f790f7a537.png)
 
-Controller is a high-lever (wrapper), end-user function. Collector, Formatter are internal helpers but can be used all alone.
+`Controller` is a high-lever (wrapper), end-user function. `Collector`, `Formatter` are internal helpers but can be used all alone.
 
 **MVC model mapping**
-- Model - collector
-- View - formatter
-- Controller - controller
+- `Model` - collector
+- `View` - formatter
+- `Controller` - controller
 
 ## Notes on Culture (dependencies)
 - Short day names can be different length
