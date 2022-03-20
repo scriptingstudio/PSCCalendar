@@ -26,7 +26,7 @@ README.md
 ## Notes on Culture (dependencies)
 - Short day names can be different length
 - `ShortestDayNames` property values can be not unique
-- Visual and calculated length of short names can vary (seems to be a font rendering issue: [Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies)). The formatter tries to adjust day names by the max width
+- Visual and calculated length of short names can vary (seems to be a font rendering issue: [Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies)). The formatter tries to adjust day name titles by the max width
 - The beginning of the week is not only Mon/Sun
 - If Mon/Sun is not the beginning of the week, what are weekends?
 - No certainty whether Sat/Sun are world-wide weekend/dayoff days
