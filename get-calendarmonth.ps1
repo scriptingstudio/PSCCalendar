@@ -1,13 +1,3 @@
-<#
-.SYNOPSIS
-.DESCRIPTION
-.PARAMETER
-.EXAMPLE
-.INPUTS
-    Date
-.OUTPUTS
-    Hashtable
-#>
 function get-calendarMonth {
 # Calendar data collector
 # Output: binary (raw) calendar and month markers
@@ -22,8 +12,13 @@ function get-calendarMonth {
     $culture = [system.globalization.cultureinfo]::CurrentCulture
     $mo      = $start.month
     $yr      = $start.year
-    $max     = $culture.DateTimeFormat.Calendar.GetDaysInMonth($yr, $mo)
+    #$mo      = [int]$start.tostring('MM')
+    #$yr      = [int]$start.tostring('yyyy')
+    $max     = try {$culture.DateTimeFormat.Calendar.GetDaysInMonth($yr, $mo)} 
+    catch {Write-Warning "There was a problem. $($_.exception.message)"}
+    if (-not $max) {return @{}} # culture date reckoning issue / non georgian calendar
     $end     = Get-Date -Year $yr -Month $mo -Day $max
+    #$end     = [datetime]::new($yr, $mo, $max)
     $fd      = $firstDay.value__
     # generic/logical day names; they are replaced with actual on the formatter tier
     $days    = 'D1','D2','D3','D4','D5','D6','D7' 
