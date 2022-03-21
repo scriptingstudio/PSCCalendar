@@ -2,12 +2,12 @@
 
 function Show-Calendar {
 # Status: in dev
-# begin,process,end blocks are useless if pileline-awareness is not configured
+# begin,process,end blocks are useless if pileline-awareness is not configured; just for visual structure?
     [cmdletbinding(DefaultParameterSetName = "month")]
     [alias('cal','pscal')]
     param (
         [Parameter(Position = 1, ParameterSetName = "month")]
-        [string]$month = [datetime]::today.tostring('MMMM'),
+        [string]$month,
         [Parameter(Position = 2, ParameterSetName = "month")]
         [ValidatePattern('^\d{4}$')]
         [int]$year = [datetime]::today.year,
@@ -20,7 +20,7 @@ function Show-Calendar {
 
         [Parameter(HelpMessage = "Specify a collection of dates to highlight in the calendar display.")]
         [ValidateNotNullorEmpty()]
-        [alias('highlightDay','hd')][string[]]$highlightDate,
+        [alias('highlightDay','hd')][string[]]$highlightDate, # alias "weekend"
 
         [Parameter(HelpMessage = "Specify the first day of the week.")]
         [ValidateNotNullOrEmpty()]
@@ -42,15 +42,17 @@ function Show-Calendar {
         [Parameter(ParameterSetName = "span")]
         [switch]$grid, # experimental; [int]
         [switch]$dayOff # experimental; duplicate $highlightDate?
+        ##[switch]$noWeekend # experimental;
     )
 
     Begin {
+        # Initialize culture settings
         $curCulture = [system.globalization.cultureinfo]::CurrentCulture
-        if ($culture) { # not finished
+        if ($culture) { # not finished?
             $c = try {[cultureinfo]::GetCultureInfo($culture)} catch {}
-            if (-not $c) { # or display calendar in current culture? - autocorrection
+            if (-not $c) { # or display calendar in current culture? - autodefault
                 ##$culture = $null
-                Throw "Invalid culture ID specified. Find desired culture ID with command [cultureinfo]::GetCultures('allCultures')"
+                Throw "Invalid culture ID specified. Find desired culture ID by command [cultureinfo]::GetCultures('allCultures')"
             } # else { 
             $OldCulture   = $PSCulture
             $OldUICulture = $PSUICulture
@@ -59,9 +61,14 @@ function Show-Calendar {
             if (-not $PSBoundParameters.ContainsKey('firstDay')) {
                 [System.DayOfWeek]$firstDay = [System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek
             }
-            if (-not $PSBoundParameters.ContainsKey('month')) {$month = [datetime]::today.tostring('MMMM')}
+            if (-not $PSBoundParameters.ContainsKey('year')) {
+                [int]$year = [datetime]::today.tostring('yyyy')
+            }
             $curCulture = [System.Threading.Thread]::CurrentThread.CurrentCulture
+            #}
         }
+
+        # Validate $month
         if ($month) {
             $c = [system.threading.thread]::currentThread.CurrentCulture
             $names = [cultureinfo]::GetCultureInfo($c).DateTimeFormat.Monthnames
@@ -78,12 +85,12 @@ function Show-Calendar {
                     }
                     $month = $curCulture.DateTimeFormat.MonthNames[$i]
                     if (-not $month -or $names -notcontains $month) {
-                        $month = $curCulture.DateTimeFormat.MonthNames[([datetime]::today.month - 1)] # autocorrection
+                        $month = $curCulture.DateTimeFormat.MonthNames[([datetime]::today.month - 1)] # autodefault
                         #Throw "Invalid month specified. Valid choices are $($names -join ',')"
                     }
                 }
             }
-        } #else {$month = [datetime]::today.tostring('MMMM')}
+        } else {$month = [datetime]::today.tostring('MMMM')}
 
         # Enforce NoStyle if running in the PowerShell ISE; Is it still used?
         if ($host.name -Match "ISE Host") {$nostyle = $true}
@@ -102,10 +109,10 @@ function Show-Calendar {
             }
         }
 
-        # Figure out the first day of the start and end months
-        if ($pscmdlet.ParameterSetName -eq "month") {
+        # Figure out the first day of the start and the end months
+        if ($pscmdlet.ParameterSetName -eq 'month') {
             $monthid = [array]::IndexOf($curCulture.DateTimeFormat.MonthNames,$month)
-            $startd  = [datetime]::new($year, $mmonthid + 1, 1)
+            $startd  = [datetime]::new($year, 1+$monthid, 1)
             $endd    = $startd
         } else {
             $startd = $start -as [datetime]
@@ -113,6 +120,7 @@ function Show-Calendar {
         }
 
         if ($startd.Year -ne $endd.Year) {$monthOnly = $false}
+        $equalwidth = $startd.Month -ne $endd.Month
         while ($startd -le $endd) {
             $params = @{ # format controls
                 highlightDate  = $highlightDate        
@@ -120,6 +128,7 @@ function Show-Calendar {
                 trim           = $trim
                 monthOnly      = $monthOnly
                 wide           = $wide
+                equalwidth     = $equalwidth # experimental
             }
             if ($titleCase)   {$params['titleCase'] = $titleCase}
             if ($orientation) {$params['orientation'] = $orientation}
