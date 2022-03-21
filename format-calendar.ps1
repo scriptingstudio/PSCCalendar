@@ -1,6 +1,7 @@
 function format-calendar {
 # Calendar formatter; receives data from the collector tier
 # Input: hashtable
+# Status: in dev
     [cmdletbinding()]
     param (
         [Parameter(Position=0, Mandatory, ValueFromPipeline)]
@@ -15,9 +16,10 @@ function format-calendar {
         [ValidateSet('u','l','t')]
         [string]$titleCase, # day name case option
         [switch]$wide, # uses AbbreviatedDayNames for ShortestDayNames
+        [switch]$equalwidth, # experimental; for vertical calendars; equal width columns
 
-        #[switch]$noWeekend, # do not highlight weekends
-        [switch]$dayOff # experimental; holiday list; duplicate $highlightDate?
+        #[switch]$noWeekend, # experimental; do not highlight weekends
+        [switch]$dayOff # holiday list; duplicate $highlightDate?
     )
 
     $calendar  = $inputObject.calendar
@@ -36,7 +38,7 @@ function format-calendar {
     }
 
     # Initialize reference points
-    $curMonth  = [datetime]::new($inputObject.year,$inputObject.month,1)
+    $curMonth  = [datetime]::new($inputObject.year,$inputObject.month,1) # get-date -year $inputObject.year -month $inputObject.month -day 1 -hour 0 -minute 0 -second 0
     $fd        = $inputObject.firstday
     $i1        = 6 - $fd
     $i2        = if ($fd -eq 0) {0} else {$i1 + 1}
@@ -59,9 +61,12 @@ function format-calendar {
     # Build an array of short day names
     # NOTE on PS7: abbreviate day names can be in lower case; short day names can be of 1 char
     # PS7: in some cultures short day names are in lower case
-    if ($psversiontable.PSVersion.Major -gt 5) {$wide = $true} # just in case
+    ##if ($psversiontable.PSVersion.Major -gt 5) {$wide = $true} # just in case
     $headstyle = if ($wide) {'AbbreviatedDayNames'} else {'ShortestDayNames'}
     $abbreviated = $culture.DateTimeFormat.$headstyle
+    #if ($abbreviated.foreach('length') -eq 1) {
+    #    $abbreviated = $culture.DateTimeFormat.AbbreviatedDayNames
+    #} else
     if ($headstyle -eq 'ShortestDayNames') { # validate name series
         # NOTE: ShortestDayNames can be not unique
         $sdn = $abbreviated | Sort-Object -Unique
@@ -75,7 +80,10 @@ function format-calendar {
     # in some cultures visual and calculated length can vary - font rendering issue
     $max = ($abbreviated.foreach{$_.length} | Measure-Object -Maximum).Maximum
     # PROBLEM: in some cultures 1 char takes 2 positions on screen
-    #if ($max -lt 2) {$max = 2}
+    # it is impossible here to exactly figure out the font subset to adjust day name title width
+    $exclude = $culture.name -match '^(ja-?|zh-?|sa-|hi-?|ko-?)'
+    # title width should be at least 2
+    if ($max -lt 2 -and -not $exclude) {$max = 2}
     $abbreviated = $abbreviated.foreach{$_.padleft($max,' ')}
     
     $days      = $abbreviated[$weekindex].foreach{$_.replace('.','')}
@@ -163,8 +171,9 @@ function format-calendar {
                     $d = $day.day
                 }
                 # adjust the gap before column 2 if all values less 10; but this breaks visual regular structure
-                if ($i -eq 1 -and $maxw -eq 1) {"$d"}
-                else {"$d".padleft($headWidth, ' ')}
+                if (-not $equalwidth -and $i -eq 1 -and $maxw -eq 1) {"$d"}
+                #else {"$d".padleft($headWidth, ' ')}
+                else {"$d".padleft(2, ' ')}
                 $i++
                 # styling comes here; in dev
             }
@@ -176,22 +185,27 @@ function format-calendar {
     } # end orientation formatter
 
     # Finalize format
+    $cm = $culture.DateTimeFormat.MonthNames[$curMonth.month - 1]
     $plainHead = if ($monthOnly) {$curMonth.tostring('MMMM')} 
-    else {'{0} {1}' -f $curMonth.tostring('MMMM'), $curMonth.year}
-    if ($psversiontable.PSVersion.Major -gt 5 -or $titleCase -eq 't') {
+    #else {'{0} {1}' -f $curMonth.tostring('MMMM'), $curMonth.tostring('yyyy')}
+    else {'{0} {1}' -f $cm, $curMonth.year}
+    if ($psversiontable.PSVersion.Major -gt 5 -or $titleCase -eq 't') { # force T
         $plainHead = $culture.TextInfo.ToTitleCase($plainHead.ToLower())
     }
     $head = if ($noStyle) {$plainHead} else {
         "{0}{1}{2}" -f $calendarStyle.title, $plainhead, "$esc[0m"
     }
+
+    # centering calendar title
     $padhead = $separator.Length - 1
     [int]$pad = if ($orientation -eq 'v') {
         (($calendar.count+1)*(2 + $padhead) + $headWidth + 1 - $plainhead.Length) / 2
     } else {
         (7*($headWidth + $padhead) - $plainhead.Length) / 2 + 2
     }
-    $p = " " * $pad
+    $p = if ($pad -gt 0) {' ' * $pad} else {''}
     $titleMargin = if ($noStyle) {''} else {"`n"}
+
     # Output
     "`n$p$head`n" # newline (btm margin) after the month title or only in plain mode?
     if ($orientation -eq 'h') {
