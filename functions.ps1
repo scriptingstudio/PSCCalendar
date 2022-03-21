@@ -63,10 +63,12 @@ function get-dayoff {
 function find-culture ([string]$culture) {
     if (-not $culture) {$culture = '.*'}
     [cultureinfo]::GetCultures('allCultures').where{$_.Name -match "$culture"} | . { process {
+        $dtf = [cultureinfo]::new($_).DateTimeFormat
         [pscustomobject]@{
-            Culture = $_.DisplayName
-            Id      = $_.Name
-            FDW     = [cultureinfo]::new($_).DateTimeFormat.FirstDayOfWeek
+            Culture  = $_.DisplayName
+            Id       = $_.Name
+            FDW      = $dtf.FirstDayOfWeek
+            Calendar = $dtf.Calendar.tostring().split('.')[2]
         }
     }}
 } # END find-culture
