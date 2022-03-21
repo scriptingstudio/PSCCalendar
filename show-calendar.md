@@ -189,4 +189,7 @@ This switch selects display type of the calendar day names. By default `Shortest
 ### System.String[]
 
 ## NOTES
-The PSCCalendar idea was originally inspired from and based on the [PSCalendar module](https://github.com/jdhitsolutions/PSCalendar) by Jeff Hicks. <!-- This manual is a kind of extended edition of the origin. -->
+- Weekend days are highlighted by default if the first day of the week is Monday or Sunday 
+
+## CREDITS
+- The PSCCalendar idea was originally inspired from and based on the [PSCalendar module](https://github.com/jdhitsolutions/PSCalendar) by Jeff Hicks. <!-- This manual is a kind of extended edition of the origin. -->
