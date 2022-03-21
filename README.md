@@ -34,6 +34,7 @@ README.md
     - **Critical** (non Gregorian Calendar): ar, ar-SA, yav\* 
     - **Warning** (font rendering): as-\*, az, az-Latn, az-Latn-AZ, bn, bn-\*, bo, bo-\*, br, br-\*, brx\*, ccp, ccp-\*, cu, cu-\*, doi, doi-\*, dua, dua-\*, dv, dv-\*, dz, dz-\*, ewo, ewo-\*, ff, ff-\*, gu, gu-\*, hi, hi-\*, ii, ii-\*, jgo, jgo-\*, kok, kok-\*, ks, ks-arab\*, mai\*, mr\*, my\*, ne\*, nmg\*, nnh\*, or\*, pcm*, sa, sa-\*, sd-deva\*, si\*, te, te-\*, uz-arab\*, yi\*, yo\*, zh-Hans\*
     - **Information** (small visual shift): km, km-\*, kn, kn-\*, pa-guru, pa-in, ksf\*, ml\*, mni\*
+- A calendar with **critical** issue will not show
 
 ## Notes on PowerShell (dependencies)
 - Month names can be in lower case
