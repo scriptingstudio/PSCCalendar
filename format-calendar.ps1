@@ -27,15 +27,21 @@ function format-calendar {
     $separator = '  '
     $esc       = if ($IsCoreCLR) {"`e"} else {[Char]27}
     $calendarStyle = @{
-        Title      = "$esc[33m" #38;5;3
-        DayOfWeek  = "$esc[1;1;36m" # 1;4;36
-        Today      = "$esc[30;47m" #;3 7   93;7 [30;107m  [93;3
+        Title      = "$esc[33m"
+        DayOfWeek  = "$esc[1;1;36m"
+        Today      = "$esc[30;47m"
         Highlight  = "$esc[91m"
-        Weekend    = "$esc[31;1m" # 38;5;1
+        Weekend    = "$esc[31;1m"
         Holiday    = "$esc[38;5;1m"
-        PreHoliday = "$esc[38;5;13m" # is it needed/important?
+        PreHoliday = "$esc[38;5;13m"
         Trails     = "$esc[90;1m"
     }
+    if ($script:PSCalendarConfig -and $script:PSCalendarConfig.count) {
+        $script:PSCalendarConfig.getenumerator().foreach{
+            $calendarStyle[$_.name] = $script:PSCalendarConfig[$_.name]
+        }
+    }
+
 
     # Initialize reference points
     $curMonth  = [datetime]::new($inputObject.year,$inputObject.month,1) # get-date -year $inputObject.year -month $inputObject.month -day 1 -hour 0 -minute 0 -second 0
