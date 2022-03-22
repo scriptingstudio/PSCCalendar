@@ -5,7 +5,7 @@ README.md
 -->
 # PSCCalendar
 
-***PSCCalendar*** is a culture-aware PowerShell console calendar engine inspired by (and based on) [@jdhitsolutions](https://github.com/jdhitsolutions/PSCalendar) PSCalendar module but significantly/totally rewritten/refactored. It is not technically a PowerShell module, just snippets/sketches as a sandbox to play with calendar ideas.
+***PSCCalendar*** is a simple culture-aware PowerShell console calendar engine inspired by (and based on) [@jdhitsolutions](https://github.com/jdhitsolutions/PSCalendar) PSCalendar module but significantly/totally rewritten/refactored. It is not technically a PowerShell module, just snippets/sketches as a sandbox to play with calendar ideas.
 
 `C` is for Console and Culture.
 
@@ -74,7 +74,7 @@ Count Name
 - See examples [here](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md)
 
 ## CSS – Calendar Style Sheet
-`Formatter` has its own built-in style sheet but it can be partially or completely redefined by `hashtable` global/script scope variable `$PSCalendarConfig`. Styling is based on using of ANSI escape sequences. Default values are:
+The `Formatter` has its own built-in style sheet but it can be partially or completely redefined by `hashtable` global/script scope variable `$PSCalendarConfig`. Styling is based on using of ANSI escape sequences. Default values are:
 ```powershell
 $PSCalendarConfig = @{
     Title      = "$([char]27)[33m"
