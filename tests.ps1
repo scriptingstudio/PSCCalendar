@@ -6,5 +6,6 @@ ForEach-Object {
     Show-Calendar -culture $_.name 
 
     write-host "`nPress any key to continue..."
-    $null = [Console]::ReadKey()
+    $key = [Console]::ReadKey()
+    if ($key.key -eq 'Escape') {break} # exit test
 }
