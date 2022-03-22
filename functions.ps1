@@ -68,7 +68,7 @@ function find-culture ([string]$culture) {
             Culture  = $_.DisplayName
             Id       = $_.Name
             FDW      = $dtf.FirstDayOfWeek
-            Calendar = $dtf.Calendar.tostring().split('.')[2]
+            Calendar = $dtf.Calendar.tostring().split('.')[2].replace('Calendar','')
         }
     }}
 } # END find-culture
