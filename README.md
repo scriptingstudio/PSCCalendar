@@ -70,6 +70,21 @@ Count Name
 - Copy content of `get-calendarMonth.ps1`, `format-calendar.ps1`, and `show-calendar.ps1` files to your script or dotsource it to PowerShell console/terminal
 - See examples [here](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md)
 
+## CSS – Calendar Style Sheet
+`Formatter` has its own built-in style sheet but it can be partially or completely redefined by `hashtable` global/script scope variable `$PSCalendarConfig`. Default values are:
+```powershell
+$PSCalendarConfig = @{
+    Title      = "$([char]27)[33m"
+    DayOfWeek  = "$([char]27)[1;1;36m"
+    Today      = "$([char]27)[30;47m"
+    Highlight  = "$([char]27)[91m"
+    Weekend    = "$([char]27)[31;1m"
+    Holiday    = "$([char]27)[38;5;1m"
+    PreHoliday = "$([char]27)[38;5;13m"
+    Trails     = "$([char]27)[90;1m" # non current month days
+}
+```
+
 ## Known Issues
 - Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
 
