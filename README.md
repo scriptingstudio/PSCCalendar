@@ -37,6 +37,7 @@ README.md
 - Font rendering issue
     - There are cultures where some characters become conditionally invisible (merging with neighboring ones), and this does not depend on font
     - In monospace fonts a character width is not constant
+    - - Workaround: use english instead of national names
 <!-- - A calendar with **critical** issue will not show -->
 
 ## Notes on PowerShell (dependencies)
