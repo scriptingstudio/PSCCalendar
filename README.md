@@ -23,7 +23,7 @@ README.md
 - `View` - formatter
 - `Controller` - controller
 
-## Notes on Culture (dependencies)
+## Notes on Culture
 - Short day names can be different length
 - `ShortestDayNames` property values can be not unique
 - Visual and calculated length of short names can vary (seems to be a font rendering issue: [Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies)). The formatter tries to adjust day name titles by the max width
@@ -40,7 +40,7 @@ README.md
     - Workaround: use english instead of national names
 <!-- - A calendar with **critical** issue will not show -->
 
-## Notes on PowerShell (dependencies)
+## Notes on PowerShell
 - Month names can be in lower case
 - PS7: short day names can be in lower case
 - PS7: short day names can be single-char
