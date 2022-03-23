@@ -146,3 +146,101 @@ function Show-Calendar {
         }
     }
 } # END Show-Calendar
+
+function Set-PsCss {
+    param (
+        [alias('default')][switch]$clear,
+        [string]$Title,
+        [string]$DayOfWeek,
+        [string]$Today,
+        [string]$Highlight,
+        [string]$Weekend,
+        [string]$Holiday,
+        [string]$PreHoliday,
+        [string]$Trails,
+
+        [string]$orientation,
+        [string]$titleCase,
+        [switch]$trim,
+        [switch]$latin, # experimental
+
+        [switch]$run # safe execution method
+    )
+
+    $css = Get-Variable -name PSCalendarConfig -scope Script -ErrorAction 0
+    $css = if (-not $css) {
+        $css = Get-Variable -name PSCalendarConfig -scope Global -ErrorAction 0
+        if (-not $css) {
+            if ($run) {
+                ($script:PSCalendarConfig = @{})
+            } else {@{}}
+        }
+        else {$global:PSCalendarConfig}
+    } else {$script:PSCalendarConfig}
+
+    if ($clear) {$css.clear()}
+    $ansi = Write-Output Title DayOfWeek Today Highlight Weekend Holiday PreHoliday Trails
+    $opt  = $ansi + (Write-Output titleCase trim orientation latin)
+    $opt.foreach{
+        if ($PSBoundParameters.ContainsKey($_)) {
+            $css[$_] = $PSBoundParameters[$_]
+        }
+    }
+    if (-not $css.count -and -not $clear) {
+        Write-Warning 'New CSS is empty'
+        return
+    }
+
+    if (-not $run -and -not $clear) {Write-Host "CSS after applying new settings:"}
+    if (-not $clear) {
+        $cfg  = [ordered]@{}
+        $e    = if ($IsCoreCLR) {'`e'} else {'$([char]27)'}
+        $esc  = [char]27
+        $css.keys.foreach{
+            if ($_ -in $ansi) {
+                $cfg[$_] = "$($css[$_]){0}{1}$esc[0m" -f $e, $(($css[$_].ToCharArray() | Select-Object -Skip 1 ) -join '')
+            }
+            else {$cfg[$_] = $css[$_]}
+        }
+        [pscustomobject]$cfg | Format-List
+    }
+} # END Set-PsCss
+
+function Get-PsCss ([switch]$default) {
+    if ($default) { # show default Formatter settings
+        $css = [ordered]@{ # should be synchronized with format-calendar
+            Title      = "$esc[33m"
+            DayOfWeek  = "$esc[1;1;36m"
+            Today      = "$esc[30;47m"
+            Highlight  = "$esc[91m"
+            Weekend    = "$esc[31;1m"
+            Holiday    = "$esc[38;5;1m"
+            PreHoliday = "$esc[38;5;13m"
+            Trails     = "$esc[90;1m"    
+        }
+    } else {
+        $css = Get-Variable -name PSCalendarConfig -scope Script -ErrorAction 0
+        $css = if (-not $css) {
+            $css = Get-Variable -name PSCalendarConfig -scope Global -ErrorAction 0
+            if (-not $css) {return}
+            else {$global:PSCalendarConfig}
+        } else {$script:PSCalendarConfig}
+        if (-not $css.count) {
+            Write-Warning 'CSS is empty'
+            return
+        }
+    }
+
+    $e    = if ($IsCoreCLR) {'`e'} else {'$([char]27)'}
+    $esc  = [char]27
+    $ansi = Write-Output Title DayOfWeek Today Highlight Weekend Holiday PreHoliday Trails
+    $cfg  = [ordered]@{}
+
+    $css.keys.foreach{
+        if ($_ -in $ansi) {
+            $cfg[$_] = "$($css[$_]){0}{1}$esc[0m" -f $e, $(($css[$_].ToCharArray() | Select-Object -Skip 1 ) -join '')
+        }
+        else {$cfg[$_] = $css[$_]}
+    }
+    [pscustomobject]$cfg | Format-List
+} # END Get-PsCss
