@@ -84,7 +84,7 @@ $PSCalendarConfig = @{
     Highlight  = "$([char]27)[91m"
     Weekend    = "$([char]27)[31;1m"
     Holiday    = "$([char]27)[38;5;1m"
-    PreHoliday = "$([char]27)[38;5;13m" # in some cultures, working hours before a holiday are shorter
+    PreHoliday = "$([char]27)[38;5;13m" # in some cultures, working hours before the holiday are shorter
     Trails     = "$([char]27)[90;1m" # non current month days
 }
 ```
