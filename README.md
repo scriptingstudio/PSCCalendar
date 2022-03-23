@@ -97,5 +97,5 @@ $PSCalendarConfig = @{
 - Multicolumn (grid) by month output
 - International holiday highlighting
 - Adaptive coloring
-- General styling improvements
+- CSS (`$PSCalendarConfig`) enhancements
 - Controller parameters optimization
