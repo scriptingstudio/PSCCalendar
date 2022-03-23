@@ -75,7 +75,7 @@ Count Name
 - See examples [here](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md)
 
 ## CSS – Calendar Style Sheet
-The `Formatter` has its own built-in style sheet but it can be partially or completely redefined by `hashtable` global/script scope variable `$PSCalendarConfig`. Styling is based on using of ANSI escape sequences. Default values are:
+The `Formatter` has its own built-in style sheet but it can be partially or completely redefined by `hashtable` global/script scope variable `$PSCalendarConfig`. Styling is based on using of ANSI escape sequences. Default settings are:
 ```powershell
 $PSCalendarConfig = @{
     Title      = "$([char]27)[33m"
@@ -84,10 +84,13 @@ $PSCalendarConfig = @{
     Highlight  = "$([char]27)[91m"
     Weekend    = "$([char]27)[31;1m"
     Holiday    = "$([char]27)[38;5;1m"
-    PreHoliday = "$([char]27)[38;5;13m" # in some cultures, working hours before the holiday are shorter
+    PreHoliday = "$([char]27)[38;5;13m" # in some cultures, business hours of the day before the holiday are shorter
     Trails     = "$([char]27)[90;1m" # non current month days
 }
 ```
+
+### Formatter Configuration
+`$PSCalendarConfig` is a user-defined `Formatter` configuration and is managed by two commands: `set-pscss` and `get-pscss` which are part of `Controller`.
 
 ## Known Issues
 - Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
@@ -97,5 +100,5 @@ $PSCalendarConfig = @{
 - Multicolumn (grid) by month output
 - International holiday highlighting
 - Adaptive coloring
-- CSS (`$PSCalendarConfig`) enhancements
+- CSS enhancements
 - Controller parameters optimization
