@@ -36,7 +36,7 @@ README.md
     - **Information** (small visual shift): km, km-\*, kn, kn-\*, pa-guru, pa-in, ksf\*, ml\*, mni\*, nus\*
 - Font rendering issue
     - There are cultures where some characters become conditionally invisible (merging with neighboring ones), and this does not depend on font
-    - In monospace fonts a character width is not constant
+    - A character width in monospace fonts is not constant
     - Workaround: use english instead of national names
 <!-- - A calendar with **critical** issue will not show -->
 
@@ -84,7 +84,7 @@ $PSCalendarConfig = @{
     Highlight  = "$([char]27)[91m"
     Weekend    = "$([char]27)[31;1m"
     Holiday    = "$([char]27)[38;5;1m"
-    PreHoliday = "$([char]27)[38;5;13m"
+    PreHoliday = "$([char]27)[38;5;13m" # in some cultures the day before a holiday is shorter
     Trails     = "$([char]27)[90;1m" # non current month days
 }
 ```
