@@ -95,7 +95,6 @@ $PSCalendarConfig = @{
 ### Formatter Configuration Automation
 `$PSCalendarConfig` is a user-defined `Formatter` configuration and can be managed by two commands: `Set-PsCss` and `Get-PsCss` which are the part of `Controller`.
 
-**Configurator usage**
 ```powershell
 Set-PsCss [-title <ANSI_color>] [-dayofweek <ANSI_color>] 
 [-today <ANSI_color>] [-highlight <ANSI_color>] 
