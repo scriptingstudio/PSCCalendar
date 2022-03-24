@@ -148,8 +148,11 @@ function Show-Calendar {
 } # END Show-Calendar
 
 function Set-PsCss {
+    [cmdletbinding()]
     param (
-        [alias('default')][switch]$clear,
+        [alias('rm','del')][string[]]$remove,
+        [alias('default','reset')][switch]$clear,
+
         [string]$Title,
         [string]$DayOfWeek,
         [string]$Today,
@@ -159,13 +162,20 @@ function Set-PsCss {
         [string]$PreHoliday,
         [string]$Trails,
 
+        [ValidateSet('h','v')]
         [string]$orientation,
+        [ValidateSet('u','l','t')]
         [string]$titleCase,
         [switch]$trim,
         [switch]$latin, # experimental
 
-        [switch]$run # safe execution method
+        [switch]$run # safe execution technique
     )
+
+    $ansi = '<ANSI_color>'
+    $bl   = '$true|$false'
+    Write-Host "USAGE: set-pscss [-title $ansi] [-dayofweek $ansi] [-today $ansi] [-highlight $ansi] [-weekend $ansi] [-holiday $ansi] [-preHoliday $ansi] [-trails $ansi] [-orientation h|v] [-titleCase u|l|t] [-trim:$bl] [-remove <string[]>] [-clear] [-run]`n"
+    # [-latin:$bl]
 
     $css = Get-Variable -name PSCalendarConfig -scope Script -ErrorAction 0
     $css = if (-not $css) {
@@ -178,7 +188,10 @@ function Set-PsCss {
         else {$global:PSCalendarConfig}
     } else {$script:PSCalendarConfig}
 
-    if ($clear) {$css.clear()}
+    # Precleaning CSS
+    if ($remove) {$remove.foreach{$css.remove($_)}}
+    elseif ($clear) {$css.clear()}
+
     $ansi = Write-Output Title DayOfWeek Today Highlight Weekend Holiday PreHoliday Trails
     $opt  = $ansi + (Write-Output titleCase trim orientation latin)
     $opt.foreach{
@@ -186,7 +199,7 @@ function Set-PsCss {
             $css[$_] = $PSBoundParameters[$_]
         }
     }
-    if (-not $css.count -and -not $clear) {
+    if (-not $css.count) {
         Write-Warning 'New CSS is empty'
         return
     }
@@ -197,16 +210,17 @@ function Set-PsCss {
         $e    = if ($IsCoreCLR) {'`e'} else {'$([char]27)'}
         $esc  = [char]27
         $css.keys.foreach{
-            if ($_ -in $ansi) {
-                $cfg[$_] = "$($css[$_]){0}{1}$esc[0m" -f $e, $(($css[$_].ToCharArray() | Select-Object -Skip 1 ) -join '')
+            $cfg[$_] = if ($_ -in $ansi) {
+                "$($css[$_]){0}{1}$esc[0m" -f $e, $(-join ($css[$_].ToCharArray() | Select-Object -Skip 1))
             }
-            else {$cfg[$_] = $css[$_]}
+            else {$css[$_]}
         }
         [pscustomobject]$cfg | Format-List
     }
 } # END Set-PsCss
 
 function Get-PsCss ([switch]$default) {
+    Write-Host "USAGE: get-pscss [-default]"
     if ($default) { # show default Formatter settings
         $css = [ordered]@{ # should be synchronized with format-calendar
             Title      = "$esc[33m"
@@ -237,10 +251,10 @@ function Get-PsCss ([switch]$default) {
     $cfg  = [ordered]@{}
 
     $css.keys.foreach{
-        if ($_ -in $ansi) {
-            $cfg[$_] = "$($css[$_]){0}{1}$esc[0m" -f $e, $(($css[$_].ToCharArray() | Select-Object -Skip 1 ) -join '')
+        $cfg[$_] = if ($_ -in $ansi) {
+            "$($css[$_]){0}{1}$esc[0m" -f $e, $(-join ($css[$_].ToCharArray() | Select-Object -Skip 1 ))
         }
-        else {$cfg[$_] = $css[$_]}
+        else {$css[$_]}
     }
     [pscustomobject]$cfg | Format-List
 } # END Get-PsCss
