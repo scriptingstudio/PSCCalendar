@@ -95,52 +95,45 @@ $PSCalendarConfig = @{
 ### Formatter Configuration Automation
 `$PSCalendarConfig` is a user-defined `Formatter` configuration and can be managed by two commands: `Set-PsCss` and `Get-PsCss` which are the part of `Controller`.
 
-<br/>**Set-PsCss**
+**Set-PsCss**
+
 ```powershell
 Set-PsCss [-title <ANSI_color>] [-dayofweek <ANSI_color>] 
 [-today <ANSI_color>] [-highlight <ANSI_color>] 
 [-weekend <ANSI_color>] [-holiday <ANSI_color>] 
 [-preHoliday <ANSI_color>] [-trails <ANSI_color>] 
 [-orientation h|v] [-titleCase u|l|t] [-trim:$true|$false] 
+[-latin:$true|$false]
 [-remove <style_name[]>] [-clear] [-run]
 ```
-<!--  [-latin:$true|$false]  -->
-`-title`, `-dayofweek`, `-today`, `-highlight`, `-weekend`, `-holiday`, `-preHoliday`, `-trails`
 
-These parameters set new calendar colors/styles.
+<table><tbody>
+<tr><td valign="top"><code>-title</code>, <code>-dayofweek</code>, <br/><code>-today</code>, <code>-highlight</code>, <br/><code>-weekend</code>, <code>-holiday</code>,  <br/><code>-preHoliday</code>, <code>-trails</code></td><td valign="top">These parameters set new calendar colors/styles.</td></tr>
 
-`-orientation`
+<tr><td valign="top"><code>-orientation</code></td><td>Sets default calendar type.</td></tr>
 
-Sets default calendar type.
+<tr><td valign="top"><code>-titleCase</code></td><td>Sets default calendar titles case.</td></tr>
 
-`-titleCase`
+<tr><td valign="top"><code>-trim</code></td><td>Sets default display mode for the non-current month days.</td></tr>
 
-Sets default calendar titles case.
+<tr><td valign="top"><code>-latin</code></td><td>[experimental] Sets English titles as default that prevents incorrect screen text alignment for problem cultures.</td></tr>
 
-`-trim`
+<tr><td valign="top"><code>-remove</code></td><td>Removes one or more parameters from user CSS.</td></tr>
 
-Sets default display mode for the non-current month days.
-<!-- `-latin` Sets English titles as default that prevents incorrect screen text alignment for problem cultures. -->
+<tr><td valign="top"><code>-clear</code></td><td>Clears user CSS.</td></tr>
 
-`-remove`
+<tr><td valign="top"><code>-run</code></td><td><i>The technique of safe execution.</i><br/>Allows to apply changes. If this parameter is not specified the command will show how new CSS would look.<br/>This parameter prevents accidental change so it makes the command safe by default.</td></tr>
+</tbody></table>
 
-Removes one or more parameters from user CSS.
+**Get-PsCss**
 
-`-clear`
-
-Clears user CSS.
-
-`-run`
-
-Allows to apply changes. If this parameter is not specified the command will show how new CSS would look.
-
-<br/>**Get-PsCss**
 ```powershell
 Get-PsCss [-default]
 ```
-`-default`
 
-Shows up built-in CSS of `Formatter`.
+<table><tbody>
+<tr><td><code>-default</code></td><td>Shows up built-in CSS of <code>Formatter</code>.</td></tr>
+</tbody></table>
 
 ## Known Issues
 - Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
