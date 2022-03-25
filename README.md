@@ -152,9 +152,9 @@ Get-PsCss [-default]
 Find-Culture [[-culture] <string>]
 ```
 
-| Parameter  | Description |
+| Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  | Description |
 |------------|-------------|
-| <nobr>`-culture`</nobr> | Search mask based on regular expressions. Searching is performed by short and long culture names. |
+| `-culture` | Search mask based on regular expressions. Searching is performed by short and long culture names. |
 
 **Examples**
 ```powershell
