@@ -6,11 +6,12 @@ README.md
 
 # PSCCalendar
 
-***PSCCalendar*** is a simple culture-aware PowerShell console calendar engine/framework inspired by (and based on) [@jdhitsolutions](https://github.com/jdhitsolutions/PSCalendar) PSCalendar module but significantly/totally rewritten/refactored. It is not technically a PowerShell module, just snippets/sketches as a sandbox to play with calendar ideas.
+***PSCCalendar*** is a simple culture-aware PowerShell console calendar engine/framework inspired by [@jdhitsolutions](https://github.com/jdhitsolutions/PSCalendar) PSCalendar module but significantly/totally rewritten/refactored. It is not technically a PowerShell module, just snippets/sketches as a sandbox to play with calendar ideas.
 
 `C` is for Console and Culture.
 
 ## Tier Architecture
+
 1. Input Controller
 2. Data Collector
 3. Output Formatter
@@ -19,13 +20,13 @@ README.md
 
 `Controller` is a high-lever (wrapper), end-user commands. `Collector`, `Formatter` are internal helpers but can be used all alone.
 
-**MVC model mapping**
+### MVC model mapping
 
 - `Model` - collector
 - `View` - formatter
 - `Controller` - controller
 
-**Infrastructure**
+### Infrastructure
 
 | Tier       | Commands | File |
 |------------|----------|------|
@@ -34,6 +35,7 @@ README.md
 | Formatter  | Format-Calendar | format-calendar.ps1 |
 
 ## Notes on Culture
+
 - Short day names can be different length
 - `ShortestDayNames` property values can be not unique
 - Visual and calculated length of short names can vary (It seems to be a font rendering issue: [Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies)). The formatter tries to adjust day name titles by max width 
@@ -52,10 +54,12 @@ README.md
 <!-- - A calendar with **critical** issue will not show -->
 
 ## Notes on PowerShell
+
 - Month names can be in lower case
 - PS7: short day names can be in lower case
 - PS7: short day names can be single-char
 - The culture sets in PS7 and PS5 differ (.NET versions differ)
+
 ```powershell
 [cultureinfo]::GetCultures('allCultures') | . { process {
     [pscustomobject]@{
@@ -82,10 +86,12 @@ Count Name
 ```
 
 ## How to Use
+
 - Copy content of `get-calendarMonth.ps1`, `format-calendar.ps1`, and `show-calendar.ps1` files to your script or dotsource it to PowerShell console/terminal
 - See examples [here](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md)
 
 ## CSS – Calendar Style Sheet
+
 The `Formatter`, like any web-browser, has its own built-in style sheet but it can be partially or completely redefined manually with `hashtable` global/script scope variable `$PSCalendarConfig`. Styling is based on using of ANSI escape sequences. Default settings are:
 
 ```powershell
@@ -102,6 +108,7 @@ $PSCalendarConfig = @{
 ```
 
 ### Formatter Configuration Automation
+
 `$PSCalendarConfig` is a user-defined `Formatter` configuration and can be managed by two commands: `Set-PsCss` and `Get-PsCss` which are the part of `Controller`.
 
 **Set-PsCss**
@@ -145,18 +152,21 @@ Get-PsCss [-default]
 </tbody></table>
 
 ## Culture Explorer
+
 **PSCCalendar** has a set of commands to work with calendar/culture. One of them is **CSS Configurator** which has been introduced above. The other tool is **Culture Explorer** implemented by command `Find-Culture`. **Culture Explorer** is the part of `Controller`.
 
-**Syntax**
+### Syntax
+
 ```powershell
 Find-Culture [[-culture] <string>]
 ```
 
-| Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  | Description |
-|------------|-------------|
-| `-culture` | Search mask based on regular expressions. Searching is performed by short and long culture names. |
+| Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    | Description |
+|-------------------------|-------------|
+| <nobr>`-culture`</nobr> | Search mask based on regular expressions. Searching is performed by short and long culture names. |
 
-**Examples**
+### Examples
+
 ```powershell
 # find culture by short name
 Find-Culture fr-fr
@@ -216,9 +226,11 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 ```
 
 ## Known Issues
+
 - Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
 
 ## ToDo and Experimental
+
 - Fix or work around culture issues
 - Multicolumn (grid) by month output
 - International holiday highlighting
@@ -227,4 +239,5 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 - Controller parameters optimization
 
 ## Credits
-- The PSCCalendar idea was originally inspired from and based on the [PSCalendar module](https://github.com/jdhitsolutions/PSCalendar) by Jeff Hicks.
+
+- The **PSCCalendar** idea was originally inspired from and based on the [PSCalendar module](https://github.com/jdhitsolutions/PSCalendar) by Jeff Hicks.
