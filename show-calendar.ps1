@@ -148,15 +148,17 @@ function Show-Calendar {
 } # END Show-Calendar
 
 # Controller Accessory Tools
+
 function Find-Culture ([string]$culture) {
     if (-not $culture) {$culture = '.*'}
-    [cultureinfo]::GetCultures('allCultures').where{$_.Name -match "$culture"} | . { process {
+    [cultureinfo]::GetCultures('allCultures').where{$_.Name,$_.DisplayName -match "$culture"} | . { process {
         $dtf = [cultureinfo]::new($_).DateTimeFormat
         [pscustomobject]@{
-            Culture  = $_.DisplayName
-            Id       = $_.Name
-            FDW      = $dtf.FirstDayOfWeek
-            Calendar = $dtf.Calendar.tostring().split('.')[2].replace('Calendar','')
+            Culture      = $_.DisplayName
+            Id           = $_.Name
+            FDW          = $dtf.FirstDayOfWeek
+            Calendar     = $dtf.Calendar.tostring().split('.')[2].replace('Calendar','')
+            OtherFormats = $dtf
         }
     }}
 } # END Find-Culture
