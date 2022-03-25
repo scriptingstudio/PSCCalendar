@@ -20,17 +20,18 @@ README.md
 `Controller` is a high-lever (wrapper), end-user commands. `Collector`, `Formatter` are internal helpers but can be used all alone.
 
 **MVC model mapping**
+
 - `Model` - collector
 - `View` - formatter
 - `Controller` - controller
 
 **Infrastructure**
 
-| Tier | Commands | File |
-|------|----------|------|
-| Controller | Show-Calendar <br/>Find-Culture <br/>Set-PsCss <br/>Get-PsCss | show-calendar.ps1 |
-| Collector | Get-CalendarMonth | get-calendarMonth.ps1 |
-| Formatter | Format-Calendar | format-calendar.ps1 |
+| Tier       | Commands | File |
+|------------|----------|------|
+| Controller | Show-Calendar<br/>Find-Culture<br/>Set-PsCss<br/>Get-PsCss | show-calendar.ps1 |
+| Collector  | Get-CalendarMonth | get-calendarMonth.ps1 |
+| Formatter  | Format-Calendar | format-calendar.ps1 |
 
 ## Notes on Culture
 - Short day names can be different length
@@ -116,19 +117,19 @@ Set-PsCss [-title <ANSI_color>] [-dayofweek <ANSI_color>]
 ```
 
 <table><tbody>
-<tr><td valign="top"><code>-title</code>, <code>-dayofweek</code>, <br/><code>-today</code>, <code>-highlight</code>, <br/><code>-weekend</code>, <code>-holiday</code>,  <br/><code>-preHoliday</code>, <code>-trails</code></td><td valign="top">These parameters set new calendar colors/styles.</td></tr>
+<tr><td valign="top"><code>-title</code>, <code>&#8209;dayofweek</code>, <br/><code>&#8209;today</code>, <code>&#8209;highlight</code>, <br/><code>&#8209;weekend</code>, <code>&#8209;holiday</code>,  <br/><code>&#8209;preHoliday</code>, <code>&#8209;trails</code></td><td valign="top">These parameters set new calendar colors/styles.</td></tr>
 
-<tr><td valign="top"><code>-orientation</code></td><td>Sets default calendar type.</td></tr>
+<tr><td valign="top"><code>&#8209;orientation</code></td><td>Sets default calendar type.</td></tr>
 
-<tr><td valign="top"><code>-titleCase</code></td><td>Sets default calendar titles case.</td></tr>
+<tr><td valign="top"><code>&#8209;titleCase</code></td><td>Sets default calendar titles case.</td></tr>
 
-<tr><td valign="top"><code>-trim</code></td><td>Sets default display mode for the non-current month days.</td></tr>
+<tr><td valign="top"><code>&#8209;trim</code></td><td>Sets default display mode for the non-current month days.</td></tr>
 
-<tr><td valign="top"><code>-latin</code></td><td>[experimental] Sets English titles as default that prevents incorrect screen text alignment for problem cultures.</td></tr>
+<tr><td valign="top"><code>&#8209;latin</code></td><td>[experimental] Sets English titles as default that prevents incorrect screen text alignment for problem cultures.</td></tr>
 
-<tr><td valign="top"><code>-remove</code></td><td>Removes one or more parameters from user CSS.</td></tr>
+<tr><td valign="top"><code>&#8209;remove</code></td><td>Removes one or more parameters from user CSS.</td></tr>
 
-<tr><td valign="top"><code>-clear</code></td><td>Clears user CSS.</td></tr>
+<tr><td valign="top"><code>&#8209;clear</code></td><td>Clears user CSS.</td></tr>
 
 <tr><td valign="top"><code>-run</code></td><td><i>The technique of safe execution.</i><br/>Allows to apply changes. If this parameter is not specified the command will show how new CSS would look.<br/>This parameter prevents accidental change so it makes the command safe by default.</td></tr>
 </tbody></table>
@@ -140,7 +141,7 @@ Get-PsCss [-default]
 ```
 
 <table><tbody>
-<tr><td><code>-default</code></td><td>Shows up built-in CSS of <code>Formatter</code>.</td></tr>
+<tr><td><code><nobr>-default</nobr></code></td><td>Shows up built-in CSS of <code>Formatter</code>.</td></tr>
 </tbody></table>
 
 ## Culture Explorer
@@ -151,9 +152,9 @@ Get-PsCss [-default]
 Find-Culture [[-culture] <string>]
 ```
 
-| Parameter | Description |
-|-----------|-------------|
-|`-culture` | Search mask based on regular expressions. Searching is performed by short and long culture names. |
+| Parameter  | Description |
+|------------|-------------|
+| <nobr>`-culture`</nobr> | Search mask based on regular expressions. Searching is performed by short and long culture names. |
 
 **Examples**
 ```powershell
