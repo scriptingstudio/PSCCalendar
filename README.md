@@ -135,6 +135,77 @@ Get-PsCss [-default]
 <tr><td><code>-default</code></td><td>Shows up built-in CSS of <code>Formatter</code>.</td></tr>
 </tbody></table>
 
+## Culture Explorer
+**PSCCalendar** has a set of commands to work with calendar/culture. One of them is **CSS Configurator** which has been introduced above. The other tool is **Culture Explorer** implemented by command `Find-Culture`. **Culture Explorer** is the part of `Controller`.
+
+**Syntax**
+```powershell
+Find-Culture [[-culture] <string>]
+```
+
+| Parameter | Description |
+|-----------|-------------|
+|`-culture` | Search mask based on regular expressions. Searching is performed by short and long culture names. |
+
+**Examples**
+```powershell
+# find culture by short name
+Find-Culture fr-fr
+
+Culture      : French (France)
+Id           : fr-FR
+FDW          : Monday
+Calendar     : Gregorian
+OtherFormats : System.Globalization.DateTimeFormatInfo
+
+# find culture by long name
+Find-Culture French | ft
+
+Culture                            Id          FDW Calendar  OtherFormats
+-------                            --          --- --------  ------------
+French                             fr       Monday Gregorian System.Globalization.DateTimeFormatInfo
+French (Caribbean)                 fr-029   Monday Gregorian System.Globalization.DateTimeFormatInfo
+French (Belgium)                   fr-BE    Monday Gregorian System.Globalization.DateTimeFormatInfo
+French (Burkina Faso)              fr-BF    Monday Gregorian System.Globalization.DateTimeFormatInfo
+French (Burundi)                   fr-BI    Monday Gregorian System.Globalization.DateTimeFormatInfo
+French (Benin)                     fr-BJ    Monday Gregorian System.Globalization.DateTimeFormatInfo
+French (Saint Barthélemy)          fr-BL    Monday Gregorian System.Globalization.DateTimeFormatInfo
+French (Canada)                    fr-CA    Sunday Gregorian System.Globalization.DateTimeFormatInfo
+French (Congo DRC)                 fr-CD    Monday Gregorian System.Globalization.DateTimeFormatInfo
+French (Central African Republic)  fr-CF    Monday Gregorian System.Globalization.DateTimeFormatInfo
+...
+
+# exploring all formats
+(Find-Culture fr-fr).OtherFormats
+
+AMDesignator                     :
+Calendar                         : System.Globalization.GregorianCalendar
+DateSeparator                    : /
+FirstDayOfWeek                   : Monday
+CalendarWeekRule                 : FirstFourDayWeek
+FullDateTimePattern              : dddd d MMMM yyyy HH:mm:ss
+LongDatePattern                  : dddd d MMMM yyyy
+LongTimePattern                  : HH:mm:ss
+MonthDayPattern                  : d MMMM
+PMDesignator                     :
+RFC1123Pattern                   : ddd, dd MMM yyyy HH':'mm':'ss 'GMT'
+ShortDatePattern                 : dd/MM/yyyy
+ShortTimePattern                 : HH:mm
+SortableDateTimePattern          : yyyy'-'MM'-'dd'T'HH':'mm':'ss
+TimeSeparator                    : :
+UniversalSortableDateTimePattern : yyyy'-'MM'-'dd HH':'mm':'ss'Z'
+YearMonthPattern                 : MMMM yyyy
+AbbreviatedDayNames              : {dim., lun., mar., mer....}
+ShortestDayNames                 : {di, lu, ma, me...}
+DayNames                         : {dimanche, lundi, mardi, mercredi...}
+AbbreviatedMonthNames            : {janv., févr., mars, avr....}
+MonthNames                       : {janvier, février, mars, avril...}
+IsReadOnly                       : False
+NativeCalendarName               : calendrier grégorien
+AbbreviatedMonthGenitiveNames    : {janv., févr., mars, avr....}
+MonthGenitiveNames               : {janvier, février, mars, avril...}
+```
+
 ## Known Issues
 - Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
 
