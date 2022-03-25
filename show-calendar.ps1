@@ -147,12 +147,22 @@ function Show-Calendar {
     }
 } # END Show-Calendar
 
-function Set-PsCss {
-    [cmdletbinding()]
-    param (
-        [alias('rm','del')][string[]]$remove,
-        [alias('default','reset')][switch]$clear,
+# Controller Accessory Tools
+function Find-Culture ([string]$culture) {
+    if (-not $culture) {$culture = '.*'}
+    [cultureinfo]::GetCultures('allCultures').where{$_.Name -match "$culture"} | . { process {
+        $dtf = [cultureinfo]::new($_).DateTimeFormat
+        [pscustomobject]@{
+            Culture  = $_.DisplayName
+            Id       = $_.Name
+            FDW      = $dtf.FirstDayOfWeek
+            Calendar = $dtf.Calendar.tostring().split('.')[2].replace('Calendar','')
+        }
+    }}
+} # END Find-Culture
 
+function Set-PsCss {
+    param (
         [string]$Title,
         [string]$DayOfWeek,
         [string]$Today,
@@ -169,13 +179,15 @@ function Set-PsCss {
         [switch]$trim,
         [switch]$latin, # experimental
 
+        [alias('rm','del')][string[]]$remove,
+        [alias('default','reset')][switch]$clear,
+
         [switch]$run # safe execution technique
     )
 
     $ansi = '<ANSI_color>'
     $bl   = '$true|$false'
-    Write-Host "USAGE: set-pscss [-title $ansi] [-dayofweek $ansi] [-today $ansi] [-highlight $ansi] [-weekend $ansi] [-holiday $ansi] [-preHoliday $ansi] [-trails $ansi] [-orientation h|v] [-titleCase u|l|t] [-trim:$bl] [-remove <string[]>] [-clear] [-run]`n"
-    # [-latin:$bl]
+    Write-Host "USAGE: set-pscss [-title $ansi] [-dayofweek $ansi] [-today $ansi] [-highlight $ansi] [-weekend $ansi] [-holiday $ansi] [-preHoliday $ansi] [-trails $ansi] [-orientation h|v] [-titleCase u|l|t] [-trim:$bl] [-latin:$bl] [-remove <string[]>] [-clear] [-run]`n"
 
     $css = Get-Variable -name PSCalendarConfig -scope Script -ErrorAction 0
     $css = if (-not $css) {
@@ -185,12 +197,14 @@ function Set-PsCss {
                 ($script:PSCalendarConfig = @{})
             } else {@{}}
         }
-        else {$global:PSCalendarConfig}
-    } else {$script:PSCalendarConfig}
+        else {if ($run) {$global:PSCalendarConfig} else {@{}+$global:PSCalendarConfig}}
+    } else {if ($run) {$script:PSCalendarConfig} else {@{}+$script:PSCalendarConfig}}
 
     # Precleaning CSS
-    if ($remove) {$remove.foreach{$css.remove($_)}}
-    elseif ($clear) {$css.clear()}
+    if ($run) {
+        if ($remove) {$remove.foreach{$css.remove($_)}}
+        elseif ($clear) {$css.clear()}
+    }
 
     $ansi = Write-Output Title DayOfWeek Today Highlight Weekend Holiday PreHoliday Trails
     $opt  = $ansi + (Write-Output titleCase trim orientation latin)
@@ -200,11 +214,16 @@ function Set-PsCss {
         }
     }
     if (-not $css.count) {
-        Write-Warning 'New CSS is empty'
+        if ($PSBoundParameters.count) {
+            Write-Warning 'New CSS is empty' # write mode
+        } else {Write-Host 'CSS is empty' -ForegroundColor Yellow} # read mode
         return
     }
 
-    if (-not $run -and -not $clear) {Write-Host "CSS after applying new settings:"}
+    if (-not $run -and -not $clear) {
+        if ($PSBoundParameters.count) {Write-Host "CSS after new settings applied:"}
+        else {Write-Host "User-defined CSS:"}
+    }
     if (-not $clear) {
         $cfg  = [ordered]@{}
         $e    = if ($IsCoreCLR) {'`e'} else {'$([char]27)'}
@@ -221,7 +240,7 @@ function Set-PsCss {
 
 function Get-PsCss ([switch]$default) {
     Write-Host "USAGE: get-pscss [-default]"
-    if ($default) { # show default Formatter settings
+    if ($default) { # show up default Formatter settings
         $css = [ordered]@{ # should be synchronized with format-calendar
             Title      = "$esc[33m"
             DayOfWeek  = "$esc[1;1;36m"
@@ -240,7 +259,7 @@ function Get-PsCss ([switch]$default) {
             else {$global:PSCalendarConfig}
         } else {$script:PSCalendarConfig}
         if (-not $css.count) {
-            Write-Warning 'CSS is empty'
+            Write-Host 'CSS is empty' -ForegroundColor Yellow
             return
         }
     }
