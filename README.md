@@ -107,7 +107,7 @@ $PSCalendarConfig = @{
 }
 ```
 
-### Formatter Configuration Automation
+### Formatter Configuration Automation – CSS Configurator
 
 `$PSCalendarConfig` is a user-defined `Formatter` configuration and can be managed by two commands: `Set-PsCss` and `Get-PsCss` which are the part of `Controller`.
 
@@ -138,7 +138,7 @@ Set-PsCss [-title <ANSI_color>] [-dayofweek <ANSI_color>]
 
 <tr><td valign="top"><code>&#8209;clear</code></td><td>Clears user CSS.</td></tr>
 
-<tr><td valign="top"><code>-run</code></td><td><i>The technique of safe execution.</i><br/>Allows to apply changes. If this parameter is not specified the command will show how new CSS would look.<br/>This parameter prevents accidental change so it makes the command safe by default. It is not so important for this project but that is a principle of safe execution used far before PowerShell.</td></tr>
+<tr><td valign="top"><code>&#8209;run</code></td><td><i>The technique of safe execution.</i><br/>Allows to apply changes. If this parameter is not specified the command will show how new CSS would look.<br/>This parameter prevents accidental data change/corruption so it makes the command safe by default. It is not so important for this project but that is a principle of safe execution used far before PowerShell.</td></tr>
 </tbody></table>
 
 **Get-PsCss**
@@ -148,7 +148,8 @@ Get-PsCss [-default]
 ```
 
 <table><tbody>
-<tr><td><code>&#8209;default</code></td><td>Shows up built-in CSS of <code>Formatter</code>.</td></tr>
+<tr><td><code>&#8209;default</code></td>
+<td>Shows up built-in CSS of <code>Formatter</code>.</td></tr>
 </tbody></table>
 
 ## Culture Explorer
@@ -162,7 +163,8 @@ Find-Culture [[-culture] <string>]
 ```
 
 <table><tbody>
-<tr><td><code>&#8209;culture</code></td><td>Search mask.<br/>The finder uses regular expressions to filter cultures by short and long culture names.</td></tr>
+<tr><td><code>&#8209;culture</code></td>
+<td>Search mask.<br/>The finder uses regular expressions to filter cultures by short and long culture names.</td></tr>
 </tbody></table>
 
 ### Examples
@@ -171,8 +173,8 @@ Find-Culture [[-culture] <string>]
 # find culture by short name
 Find-Culture fr-fr
 
-Culture      : French (France)
-Id           : fr-FR
+Culture      : French (France) # long name
+Id           : fr-FR # short name
 FDW          : Monday
 Calendar     : Gregorian
 OtherFormats : System.Globalization.DateTimeFormatInfo
