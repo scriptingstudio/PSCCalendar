@@ -9,15 +9,21 @@ function format-calendar {
 
         [string[]]$highlightDate, # accepts full and short date strings,
         [alias('plain','noansi')][switch]$noStyle,
-        [ValidateSet('h','v')][alias('type')]
+
+        [ValidateSet('h','v')][alias('type','mode','transpose')]
         [string]$orientation = 'h',
+
         [switch]$monthOnly, # month title style; displays no year
+
         [switch]$trim, # cuts trailing days
+
         [ValidateSet('u','l','t')]
         [string]$titleCase, # day name case option
-        [switch]$wide, # uses AbbreviatedDayNames for ShortestDayNames
-        [switch]$equalwidth, # experimental; for vertical calendars; equal width columns
 
+        [alias('long')][switch]$wide, # uses AbbreviatedDayNames for ShortestDayNames
+
+        [switch]$latin, # experimental; use english instead of national names
+        [switch]$equalwidth, # experimental; for vertical calendars; equal width columns
         #[switch]$noWeekend, # experimental; do not highlight weekends
         [switch]$dayOff # holiday list; duplicate $highlightDate?
     )
@@ -25,8 +31,9 @@ function format-calendar {
     $calendar  = $inputObject.calendar
     if ($calendar.count -eq 0) {return}
     $separator = '  '
-    $esc       = if ($IsCoreCLR) {"`e"} else {[Char]27}
-    $calendarStyle = @{
+    $esc       = if ($IsCoreCLR) {"`e"} else {[char]27}
+    $closeAnsi = "$esc[0m"
+    $calendarStyle = @{ # default CSS
         Title      = "$esc[33m"
         DayOfWeek  = "$esc[1;1;36m"
         Today      = "$esc[30;47m"
@@ -35,13 +42,22 @@ function format-calendar {
         Holiday    = "$esc[38;5;1m"
         PreHoliday = "$esc[38;5;13m"
         Trails     = "$esc[90;1m"
+        # runtime options
+        titleCase   = $titleCase
+        orientation = $orientation
+        wide        = $wide
+        noStyle     = $noStyle
+        monthOnly   = $monthOnly
+        trim        = $trim
+        latin       = $latin # experimental
     }
-    if ($script:PSCalendarConfig -and $script:PSCalendarConfig.count) {
-        $script:PSCalendarConfig.getenumerator().foreach{
-            $calendarStyle[$_.name] = $script:PSCalendarConfig[$_.name]
+    # Update CSS from user-defined table
+    if ($PSCalendarConfig -and $PSCalendarConfig.count) {
+        #$opt = Write-Output titleCase orientation wide noStyle monthOnly trim latin
+        $PSCalendarConfig.Keys.foreach{
+            $calendarStyle[$_] = $PSCalendarConfig[$_]
         }
     }
-
 
     # Initialize reference points
     $curMonth  = [datetime]::new($inputObject.year,$inputObject.month,1) # get-date -year $inputObject.year -month $inputObject.month -day 1 -hour 0 -minute 0 -second 0
@@ -51,6 +67,7 @@ function format-calendar {
     $weekend   = $i1,$i2 # weekend indices
     $weekindex = (0..6+0..6)[$fd..($fd + 6)] # day sequence FDW-aware index
     $culture   = [system.globalization.cultureinfo]::CurrentCulture
+    #if ($latin) {$culture = [system.globalization.cultureinfo]::new('en-us')}
 
     if (-not $noStyle -and $highlightDate) { # not finished
         $md = $culture.DateTimeFormat.MonthDayPattern.split(' -./')
@@ -69,7 +86,9 @@ function format-calendar {
     # PS7: in some cultures short day names are in lower case
     ##if ($psversiontable.PSVersion.Major -gt 5) {$wide = $true} # just in case
     $headstyle = if ($wide) {'AbbreviatedDayNames'} else {'ShortestDayNames'}
-    $abbreviated = $culture.DateTimeFormat.$headstyle
+    $abbreviated = if ($latin) {
+        [cultureinfo]::new('en-us').DateTimeFormat.$headstyle
+    } else {$culture.DateTimeFormat.$headstyle}
     #if ($abbreviated.foreach('length') -eq 1) {
     #    $abbreviated = $culture.DateTimeFormat.AbbreviatedDayNames
     #} else
@@ -77,7 +96,7 @@ function format-calendar {
         # NOTE: ShortestDayNames can be not unique
         $sdn = $abbreviated | Sort-Object -Unique
         if ($sdn.count -ne $abbreviated.count) {
-            $abbreviated = $culture.DateTimeFormat.AbbreviatedDayNames
+            $abbreviated = if ($latin) {[cultureinfo]::new('en-us').DateTimeFormat.AbbreviatedDayNames} else {$culture.DateTimeFormat.AbbreviatedDayNames}
         }
     }
 
@@ -90,11 +109,25 @@ function format-calendar {
     $exclude = $culture.name -match '^(ja-?|zh-?|sa-|hi-?|ko-?)'
     # title width should be at least 2
     if ($max -lt 2 -and -not $exclude) {$max = 2}
-    $abbreviated = $abbreviated.foreach{$_.padleft($max,' ')}
+    ##if ($orientation -eq 'v') {$max = -$max}
+    ##$abbreviated = $abbreviated.foreach{"{0,$max}" -f $_}
+    $abbreviated = if ($orientation -eq 'h') {
+        $abbreviated.foreach{$_.padleft($max,' ')}
+    } else {
+        $abbreviated.foreach{$_.padright($max,' ')}
+    }
     
+    $wi        = $weekend
     $days      = $abbreviated[$weekindex].foreach{$_.replace('.','')}
     $weekdays  = $days
-    $weekend   = $weekdays[$weekend]
+    $weekend   = $weekdays[$weekend] # not nice to redefined a variable
+    if ($orientation -eq 'v') {
+        # because a day object from The Collector exposes day name in English
+        # $weekend should contain full day names in English as well
+        #$weekend = [cultureinfo]::CurrentCulture.DateTimeFormat.DayNames[$weekindex][$wi] + 
+        #[cultureinfo]::CurrentUICulture.DateTimeFormat.DayNames[$weekindex][$wi] +
+        $weekend = [cultureinfo]::new('en-us').DateTimeFormat.DayNames[$weekindex][$wi]
+    }
     $headWidth = $weekdays[0].length
     if ($headWidth -lt 2) {$headWidth = 2}
     if ($titleCase) {
@@ -112,6 +145,7 @@ function format-calendar {
     }
 
     # Convert from binary to text
+    #$hlday = {param ($day, $wkday)} experimental parameterization
     if ($orientation -eq 'h') {
         $month = foreach ($week in ($calendar | Select-Object $calHeader)) {
             $wk = foreach ($day in $weekdays) {
@@ -129,20 +163,21 @@ function format-calendar {
                     $d = $week.$day.day
                 }
                 $value = "$d".padleft($headWidth, ' ')
-                if (($week.$day.date -eq $curMonth) -AND -Not $noStyle -and $cm) {
-                    "{0}{1}{2}" -f $calendarStyle.Today, $value, "$esc[0m"
+                #. $hlday $week.$day $day
+                if (($week.$day.date -eq [datetime]::today) -AND -Not $noStyle -and -not $cm) {
+                    "{0}{1}{2}" -f $calendarStyle.Today, $value, $closeAnsi
     
                 }
                 elseif (($highlightDate -contains $week.$day.date) -AND -Not $noStyle) {
-                    "{0}{1}{2}" -f $calendarStyle.Highlight, $value, "$esc[0m"
+                    "{0}{1}{2}" -f $calendarStyle.Highlight, $value, $closeAnsi
                 }
                 else {
                     if ($noStyle) {$value}
                     elseif ($day -in $weekend -and $fd -in 0,1) {
                         $style = if ($trails) {'Trails'} else {'Weekend'}
-                        "{0}{1}{2}" -f $calendarStyle.$style, $value, "$esc[0m"
+                        "{0}{1}{2}" -f $calendarStyle.$style, $value, $closeAnsi
                     } elseif ($trails) {
-                        "{0}{1}{2}" -f $calendarStyle.Trails, $value, "$esc[0m"
+                        "{0}{1}{2}" -f $calendarStyle.Trails, $value, $closeAnsi
                     }
                     else {$value}
                 }
@@ -152,11 +187,12 @@ function format-calendar {
     
         $days = if ($noStyle) {$weekdays} else {
             foreach ($d in $weekdays) {
-                "{0}{1}{2}" -f $calendarStyle.DayofWeek, $d, "$esc[0m"
+                "{0}{1}{2}" -f $calendarStyle.DayofWeek, $d, $closeAnsi
             }
         }    
     } 
-    else { # vertical calendar; not finished
+    else { # vertical calendar
+        $dnpad = if ($monthOnly) {' '} else {'  '}
         $calendar = ($calendar | Select-Object $calHeader)
         # style issue (doubtful): gaps between columns are not equal if all values less 10
         $maxw = ($weekdays.foreach{$calendar[1].$_.day.tostring().length} | Measure-Object -Maximum).Maximum
@@ -177,32 +213,54 @@ function format-calendar {
                     $d = $day.day
                 }
                 # adjust the gap before column 2 if all values less 10; but this breaks visual regular structure
-                if (-not $equalwidth -and $i -eq 1 -and $maxw -eq 1) {"$d"}
+                $value = if (-not $equalwidth -and $i -eq 1 -and $maxw -eq 1) {"$d"}
                 #else {"$d".padleft($headWidth, ' ')}
                 else {"$d".padleft(2, ' ')}
                 $i++
-                # styling comes here; in dev
+                #. $hlday $day $day.DayOfWeek
+                if (($day.date -eq [datetime]::today) -AND -Not $noStyle -and -not $cm) {
+                    "{0}{1}{2}" -f $calendarStyle.Today, $value, $closeAnsi
+                }
+                elseif (($highlightDate -contains $day.date) -AND -Not $noStyle) {
+                    "{0}{1}{2}" -f $calendarStyle.Highlight, $value, $closeAnsi
+                }
+                else {
+                    # NOTE: $day.DayOfWeek is always English so $weekend should contain English names
+                    if ($noStyle) {$value}
+                    elseif ($day.DayOfWeek -in $weekend -and $fd -in 0,1) {
+                        $style = if ($trails) {'Trails'} else {'Weekend'}
+                        "{0}{1}{2}" -f $calendarStyle.$style, $value, $closeAnsi
+                    } elseif ($trails) {
+                        "{0}{1}{2}" -f $calendarStyle.Trails, $value, $closeAnsi
+                    }
+                    else {$value}
+                }
             }
             if (-not $noStyle) {
-                $name = "{0}{1}{2}" -f $calendarStyle.DayofWeek, $name, "$esc[0m"
+                $name = "{0}{1}{2}" -f $calendarStyle.DayofWeek, $name, $closeAnsi
             }
-            '{0} {1}' -f $name, ($row -join $separator)
+            "{0}${dnpad}{1}" -f $name, ($row -join $separator) # $dnpad working weird
         }
     } # end orientation formatter
 
     # Finalize format
-    $cm = $culture.DateTimeFormat.MonthNames[$curMonth.month - 1]
-    $plainHead = if ($monthOnly) {$curMonth.tostring('MMMM')} 
-    #else {'{0} {1}' -f $curMonth.tostring('MMMM'), $curMonth.tostring('yyyy')}
-    else {'{0} {1}' -f $cm, $curMonth.year}
+    if ($latin) { # experimental
+        $cm = [cultureinfo]::new('en-us').DateTimeFormat.MonthNames[$curMonth.month - 1]
+        $plainHead = if ($monthOnly) {$cm} else {'{0} {1}' -f $cm, $curMonth.year}
+    } else {
+        $cm = $culture.DateTimeFormat.MonthNames[$curMonth.month - 1]
+        $plainHead = if ($monthOnly) {$curMonth.tostring('MMMM')} 
+        #else {'{0} {1}' -f $curMonth.tostring('MMMM'), $curMonth.tostring('yyyy')}
+        else {'{0} {1}' -f $cm, $curMonth.year}
+    }
     if ($psversiontable.PSVersion.Major -gt 5 -or $titleCase -eq 't') { # force T
         $plainHead = $culture.TextInfo.ToTitleCase($plainHead.ToLower())
     }
     $head = if ($noStyle) {$plainHead} else {
-        "{0}{1}{2}" -f $calendarStyle.title, $plainhead, "$esc[0m"
+        "{0}{1}{2}" -f $calendarStyle.title, $plainhead, $closeAnsi
     }
 
-    # centering calendar title
+    # centering calendar title; too complicated?
     $padhead = $separator.Length - 1
     [int]$pad = if ($orientation -eq 'v') {
         (($calendar.count+1)*(2 + $padhead) + $headWidth + 1 - $plainhead.Length) / 2
