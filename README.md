@@ -162,7 +162,7 @@ Find-Culture [[-culture] <string>]
 ```
 
 <table><tbody>
-<tr><td><code>&#8209;culture</code></td><td>Search mask based on regular expressions. Searching is performed by short and long culture names.</td></tr>
+<tr><td><code>&#8209;culture</code></td><td>Search mask.<br/>The finder uses regular expressions to filter cultures by short and long culture names.</td></tr>
 </tbody></table>
 
 ### Examples
