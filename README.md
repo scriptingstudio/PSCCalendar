@@ -31,7 +31,7 @@ README.md
 | Tier       | Commands | Files | Help |
 |------------|----------|-------|------|
 | Controller | Show-Calendar<br/>Find-Culture<br/>Set-PsCss<br/>Get-PsCss | show-calendar.ps1 | show-calendar.md<br/>README.md |
-| Collector  | Get-CalendarMonth | get-calendarMonth.ps1 | |
+| Collector  | Get-CalendarMonth | get-calendarmonth.ps1 | |
 | Formatter  | Format-Calendar | format-calendar.ps1 | |
 
 ## Notes on Culture
@@ -87,7 +87,7 @@ Count Name
 
 ## How to Use
 
-- Copy content of `get-calendarMonth.ps1`, `format-calendar.ps1`, and `show-calendar.ps1` files to your script or dotsource it to PowerShell console/terminal
+- Copy content of `get-calendarmonth.ps1`, `format-calendar.ps1`, and `show-calendar.ps1` files to your script or dotsource it to PowerShell console/terminal
 - See examples [here](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md)
 
 ## CSS – Calendar Style Sheet
@@ -138,7 +138,7 @@ Set-PsCss [-title <ANSI_color>] [-dayofweek <ANSI_color>]
 
 <tr><td valign="top"><code>&#8209;clear</code></td><td>Clears user CSS.</td></tr>
 
-<tr><td valign="top"><code>-run</code></td><td><i>The technique of safe execution.</i><br/>Allows to apply changes. If this parameter is not specified the command will show how new CSS would look.<br/>This parameter prevents accidental change so it makes the command safe by default.</td></tr>
+<tr><td valign="top"><code>-run</code></td><td><i>The technique of safe execution.</i><br/>Allows to apply changes. If this parameter is not specified the command will show how new CSS would look.<br/>This parameter prevents accidental change so it makes the command safe by default. It is not so important for this project but that is a principle of safe execution used far before PowerShell.</td></tr>
 </tbody></table>
 
 **Get-PsCss**
