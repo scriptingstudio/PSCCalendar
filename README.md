@@ -18,7 +18,7 @@ README.md
 
 ![pscal](https://user-images.githubusercontent.com/17237559/158593488-c95aa3bd-badd-4fc2-a549-21f790f7a537.png)
 
-`Controller` is a high-lever (wrapper), end-user commands. `Collector`, `Formatter` are internal helpers but can be used all alone.
+`Controller` is a high-level end-user commands. `Collector`, `Formatter` are internal helpers but can be used all alone.
 
 ### MVC model mapping
 
@@ -28,11 +28,11 @@ README.md
 
 ### Infrastructure
 
-| Tier       | Commands | File |
-|------------|----------|------|
-| Controller | Show-Calendar<br/>Find-Culture<br/>Set-PsCss<br/>Get-PsCss | show-calendar.ps1 |
-| Collector  | Get-CalendarMonth | get-calendarMonth.ps1 |
-| Formatter  | Format-Calendar | format-calendar.ps1 |
+| Tier       | Commands | Files | Help |
+|------------|----------|-------|------|
+| Controller | Show-Calendar<br/>Find-Culture<br/>Set-PsCss<br/>Get-PsCss | show-calendar.ps1 | show-calendar.md<br/>README.md |
+| Collector  | Get-CalendarMonth | get-calendarMonth.ps1 | |
+| Formatter  | Format-Calendar | format-calendar.ps1 | |
 
 ## Notes on Culture
 
@@ -148,7 +148,7 @@ Get-PsCss [-default]
 ```
 
 <table><tbody>
-<tr><td><code><nobr>-default</nobr></code></td><td>Shows up built-in CSS of <code>Formatter</code>.</td></tr>
+<tr><td><code>&#8209;default</code></td><td>Shows up built-in CSS of <code>Formatter</code>.</td></tr>
 </tbody></table>
 
 ## Culture Explorer
@@ -161,9 +161,9 @@ Get-PsCss [-default]
 Find-Culture [[-culture] <string>]
 ```
 
-| Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    | Description |
-|-------------------------|-------------|
-| <nobr>`-culture`</nobr> | Search mask based on regular expressions. Searching is performed by short and long culture names. |
+<table><tbody>
+<tr><td><code>&#8209;culture</code></td><td>Search mask based on regular expressions. Searching is performed by short and long culture names.</td></tr>
+</tbody></table>
 
 ### Examples
 
