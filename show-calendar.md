@@ -14,15 +14,17 @@ There are two types of calendar range setting. <!-- [<CommonParameters>] -->
 
 ### month (default)
 ```powershell
-Show-Calendar [[-Month] <String>] [[-Year] <Int32>] [-HighlightDate <String[]>] [-FirstDay <DayOfWeek>] [-Culture <String>] [-NoStyle] [-MonthOnly] [-Trim] [-Orientation <String>] [-TitleCase <String>] [-Wide]
+Show-Calendar [[-Month] <String>] [[-Year] <Int32>] [-HighlightDate <String[]>] [-FirstDay <DayOfWeek>] [-Culture <CultureInfo>] [-NoStyle] [-MonthOnly] [-Trim] [-Orientation <String>] [-TitleCase <String>] [-Wide] [-Latin] [-Weekend <String[]>]
 ```
+
 ### span <!-- [-Grid <Int32>] -->
 ```powershell
-Show-Calendar -Start <String> [-End <String>] [-HighlightDate <String[]>] [-FirstDay <DayOfWeek>] [-Culture <String>] [-NoStyle] [-MonthOnly] [-Trim] [-Orientation <String>] [-TitleCase <String>] [-Wide]
+Show-Calendar -Start <String> [-End <String>] [-HighlightDate <String[]>] [-FirstDay <DayOfWeek>] [-Culture <CultureInfo>] [-NoStyle] [-MonthOnly] [-Trim] [-Orientation <String>] [-TitleCase <String>] [-Wide] [-Latin] [-Weekend <String[]>]
 ```
 
 ## EXAMPLES
 **Note:** Examples can not reproduce full command output coloring due to Markdown limitations. <!-- imperfection -->
+
 ### Example 1: Default view
 ```powershell
 Show-Calendar
@@ -36,6 +38,7 @@ Su  Mo  Tu  We  Th  Fr  Sa
 20  21  22  23  24  25  26
 27  28  29  30  31   1   2
 ```
+
 ### Example 2: Cut (trim) trailing months
 ```powershell
 Show-Calendar -trim
@@ -49,7 +52,8 @@ Su  Mo  Tu  We  Th  Fr  Sa
 20  21  22  23  24  25  26
 27  28  29  30  31
 ```
-### Example 3: Display vertical representation of a calendar (default is horisontal)
+
+### Example 3: Display vertical representation of the calendar (default is horisontal)
 ```powershell
 Show-Calendar -trim -orientation v
 
@@ -63,6 +67,7 @@ Th  3  10  17  24  31
 Fr  4  11  18  25
 Sa  5  12  19  26
 ```
+
 ### Example 4: Display `monthonly` title
 ```powershell
 Show-Calendar -trim -orientation v -monthOnly
@@ -90,6 +95,7 @@ Mo  Tu  We  Th  Fr  Sa  Su
 21  22  23  24  25  26  27
 28  29  30  31   1   2   3
 ```
+
 ### Example 6: Select another culture 
 ```powershell
 Show-Calendar -culture fr-fr -trim
@@ -106,17 +112,6 @@ lu  ma  me  je  ve  sa  di
 
 ### Example 7: Culture font rendering anomalies 
 ```powershell
-Show-Calendar -culture zh-CN -trim
-
-        三月 2022
-
-一  二  三  四  五  六  日
-     1   2   3   4   5   6
- 7   8   9  10  11  12  13
-14  15  16  17  18  19  20
-21  22  23  24  25  26  27
-28  29  30  31
-
 Show-Calendar -culture ja-JP -trim
 
         3月 2022
@@ -139,9 +134,12 @@ Show-Calendar -culture ar-QA -trim
 19  20  21  22  23  24  25
 26  27  28  29  30  31
 ```
+
 Cases 1 and 2 are actually correct. Visual shift is due to Markdown oddities.
+In case 3 it is impossible to exactly figure out the font subset to adjust day name title width.
 
 ## PARAMETERS
+
 ### -Month
 Selects a month to display. The command will default to the current year unless otherwise specified. Month numbers are accepted.
 
@@ -180,7 +178,17 @@ This parameter selects representation type of the calendar to display. There are
 By this parameter you can select a case of the day names and month title. Valid values are `u`, `l`, `t` for uppercase, lowercase, and titlecase respectively.
 
 ### -Wide
-This switch selects display type of the calendar day names. By default `ShortestDayNames` property is used to display day names. The name width is 1 to 5 chars depending on the selected culture. Alternatively the width by `AbbreviatedDayNames` property is 2 to 5 chars depending on the selected culture. In PowerShell 7 the default display type is wide because one-char names can be not unique.
+This switch selects display type of the calendar day names. <br>`ShortestDayNames` property is used by default to display day names. The name width is 1 to 5 chars depending on the selected culture. Alternatively the width by `AbbreviatedDayNames` property is 2 to 5 chars depending on the selected culture. In PowerShell 7 the default display type is wide because one-char names can be non-unique.
+
+### -Weekend
+Makes it possible to highlight specific days as weekend.
+<br>Value aliases are `d`,`%`,`ww` which are expanded to the array of "Saturday","Sunday".
+
+`d` is for `default`<br>
+`ww` is for `world-wide`
+
+### -Latin (experimental)
+Sets English titles as default that prevents incorrect screen text alignment for problem cultures.
 
 ## INPUTS
 ### Defined by the command parameters
@@ -189,4 +197,5 @@ This switch selects display type of the calendar day names. By default `Shortest
 ### System.String[]
 
 ## NOTES
-- Weekend days are highlighted by default if the first day of the week is Monday or Sunday
+- Weekend days are not highlighted by default 
+<!-- - Weekend days are highlighted by default if the first day of the week is Monday or Sunday -->
