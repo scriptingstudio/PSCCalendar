@@ -8,6 +8,7 @@ function Show-Calendar {
     param (
         [Parameter(Position = 1, ParameterSetName = "month")]
         [string]$month,
+
         [Parameter(Position = 2, ParameterSetName = "month")]
         [ValidatePattern('^\d{4}$')]
         [int]$year = [datetime]::today.year,
@@ -15,6 +16,7 @@ function Show-Calendar {
         [Parameter(Mandatory, HelpMessage = "Enter the start of a month like 1/1/2020 that is correct for your culture.", ParameterSetName = "span")]
         [ValidateNotNullOrEmpty()]
         [string]$start,
+
         [Parameter(HelpMessage = "Enter an ending date for the month like 3/1/2020 that is correct for your culture.", ParameterSetName = "span")]
         [string]$end, # if not specified ($start + 1 month)
 
@@ -28,36 +30,38 @@ function Show-Calendar {
 
         [Parameter(HelpMessage = "Do not use any ANSI formatting.")]
         [alias('plain','noansi')][switch]$noStyle,
+
         [Parameter(HelpMessage = "Do not show leading/trailing days of non-current month.")]
         [switch]$trim, # cuts trailing days
+
         [switch]$monthOnly, # month title style; displays no year
 
         [ValidateSet('h','v')]
-        [alias('type')][string]$orientation = 'h',
+        [alias('type','mode','transpose')][string]$orientation = 'h',
+
         [ValidateSet('u','l','t')]
         [string]$titleCase, # day name case option
-        [switch]$wide, # uses AbbreviatedDayNames instead ShortestDayNames
-        [alias('language')][string]$culture, # [cultureinfo]
+
+        [alias('long')][switch]$wide, # uses AbbreviatedDayNames instead ShortestDayNames
         
+        [alias('language')][cultureinfo]$culture,
+        #[ValidateCount(2,2)]
+        [array]$weekend, # day names as weekend
+        
+        [switch]$latin, # experimental; english titles instead of national; for problem cultures?
         [Parameter(ParameterSetName = "span")]
         [switch]$grid, # experimental; [int]
         [switch]$dayOff # experimental; duplicate $highlightDate?
-        ##[switch]$noWeekend # experimental;
     )
 
     Begin {
         # Initialize culture settings
-        $curCulture = [system.globalization.cultureinfo]::CurrentCulture
-        if ($culture) { # not finished?
-            $c = try {[cultureinfo]::GetCultureInfo($culture)} catch {}
-            if (-not $c) { # or display calendar in current culture? - autodefault
-                ##$culture = $null
-                Throw "Invalid culture ID specified. Find desired culture ID by command [cultureinfo]::GetCultures('allCultures')"
-            } # else { 
+        $curCulture = [System.Globalization.CultureInfo]::CurrentCulture
+        if ($culture) {
             $OldCulture   = $PSCulture
             $OldUICulture = $PSUICulture
             [System.Threading.Thread]::CurrentThread.CurrentCulture   = $culture
-            [System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture # ???
+            [System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture
             if (-not $PSBoundParameters.ContainsKey('firstDay')) {
                 [System.DayOfWeek]$firstDay = [System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek
             }
@@ -65,7 +69,6 @@ function Show-Calendar {
                 [int]$year = [datetime]::today.tostring('yyyy')
             }
             $curCulture = [System.Threading.Thread]::CurrentThread.CurrentCulture
-            #}
         }
 
         # Validate $month
@@ -92,11 +95,32 @@ function Show-Calendar {
             }
         } else {$month = [datetime]::today.tostring('MMMM')}
 
-        # Enforce NoStyle if running in the PowerShell ISE; Is it still used?
-        if ($host.name -Match "ISE Host") {$nostyle = $true}
+        # Enforce NoStyle if running in the PowerShell ISE; Is ISE still needed?
+        if ($host.name -match "ISE Host") {$nostyle = $true}
         if ($nostyle) {$trim = $true}
 
         $internationalDayOff = ''
+
+        # Validate weekend day names and convert em to indices
+        if ($weekend) {
+            if ($weekend -match 'ww|%|default|^d(ef(ault)?)?$') {$weekend = 'sat','sun'}
+            $weekend = switch -regex ($weekend) {
+                'm|1'   {'Monday'}
+                '^tu|2' {'Tuesday'}
+                'w|3'   {'Wednesday'}
+                'th|4'  {'Thursday'}
+                'f|5'   {'Friday'}
+                'sa|6'  {'Saturday'}
+                'su|7'  {'Sunday'}
+            }
+            if ($weekend.count -lt 2) {
+                Write-Warning "Possible errors: Invalid day name specified. Valid values are of English day names. Specify 2 days. The number of provided arguments is fewer than the minimum number of allowed arguments (2)."
+                $weekend = $null
+            } else {
+                $dn = [cultureinfo]::new('en-us').DateTimeFormat.DayNames
+                $weekend = $weekend[0,1] | ForEach-Object {[array]::IndexOf($dn,$_)}
+            }
+        }
     }
     Process {
         # Validate $start and $end
@@ -120,7 +144,7 @@ function Show-Calendar {
         }
 
         if ($startd.Year -ne $endd.Year) {$monthOnly = $false}
-        $equalwidth = $startd.Month -ne $endd.Month
+        $equalwidth = $startd.Month -ne $endd.Month # experimental
         while ($startd -le $endd) {
             $params = @{ # format controls
                 highlightDate  = $highlightDate        
@@ -129,11 +153,13 @@ function Show-Calendar {
                 monthOnly      = $monthOnly
                 wide           = $wide
                 equalwidth     = $equalwidth # experimental
+                latin          = $latin # experimental
+                weekend        = $weekend
             }
             if ($titleCase)   {$params['titleCase'] = $titleCase}
             if ($orientation) {$params['orientation'] = $orientation}
 
-            # Get data and format output
+            # Get data (Collector), format output (Formatter)
             get-calendarMonth -start $startd -firstday $firstDay | format-calendar @params
 
             try {$startd = $startd.AddMonths(1)} catch {break} # next month
@@ -147,12 +173,14 @@ function Show-Calendar {
     }
 } # END Show-Calendar
 
-# Controller Accessory Tools
+# Controller Auxiliary Tools
 
-function Find-Culture ([string]$culture) {
+function Find-Culture ([string]$culture, [alias('dtf')][switch]$DateTimeFormat) {
+# Culture Expolrer
     if (-not $culture) {$culture = '.*'}
-    [cultureinfo]::GetCultures('allCultures').where{$_.Name,$_.DisplayName -match "$culture"} | . { process {
+    [cultureinfo]::GetCultures('allCultures').where{$_.Name,$_.DisplayName -match $culture} | . { process {
         $dtf = [cultureinfo]::new($_).DateTimeFormat
+        if ($DateTimeFormat) {$dtf; return}
         [pscustomobject]@{
             Culture      = $_.DisplayName
             Id           = $_.Name
@@ -180,16 +208,18 @@ function Set-PsCss {
         [string]$titleCase,
         [switch]$trim,
         [switch]$latin, # experimental
+        [ValidateCount(2,2)]
+        [string[]]$weekendlist,
 
         [alias('rm','del')][string[]]$remove,
         [alias('default','reset')][switch]$clear,
 
-        [switch]$run # safe execution technique
+        [alias('apply')][switch]$run # safe execution technique
     )
 
     $ansi = '<ANSI_color>'
     $bl   = '$true|$false'
-    Write-Host "USAGE: set-pscss [-title $ansi] [-dayofweek $ansi] [-today $ansi] [-highlight $ansi] [-weekend $ansi] [-holiday $ansi] [-preHoliday $ansi] [-trails $ansi] [-orientation h|v] [-titleCase u|l|t] [-trim:$bl] [-latin:$bl] [-remove <string[]>] [-clear] [-run]`n"
+    Write-Host "USAGE: set-pscss [-title $ansi] [-dayofweek $ansi] [-today $ansi] [-highlight $ansi] [-weekend $ansi] [-holiday $ansi] [-preHoliday $ansi] [-trails $ansi] [-orientation h|v] [-titleCase u|l|t] [-trim:$bl] [-latin:$bl] [-weekendlist <dayname[]>] [-remove <string[]>] [-clear] [-run]`n"
 
     $css = Get-Variable -name PSCalendarConfig -scope Script -ErrorAction 0
     $css = if (-not $css) {
@@ -209,10 +239,11 @@ function Set-PsCss {
     }
 
     $ansi = Write-Output Title DayOfWeek Today Highlight Weekend Holiday PreHoliday Trails
-    $opt  = $ansi + (Write-Output titleCase trim orientation latin)
+    $opt  = $ansi + (Write-Output titleCase trim orientation latin weekendlist)
     $opt.foreach{
         if ($PSBoundParameters.ContainsKey($_)) {
-            $css[$_] = $PSBoundParameters[$_]
+            # filter empty values
+            if ($PSBoundParameters[$_]) {$css[$_] = $PSBoundParameters[$_]}
         }
     }
     if (-not $css.count) {
