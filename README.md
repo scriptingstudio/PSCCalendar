@@ -245,7 +245,7 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 ## Known Issues
 
 - Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
-- Certain ANSI codes cause Windows and VSCode Terminal display artifacts in the last column
+- Windows and VSCode Terminal window resize with certain ANSI codes creates display artifacts in the last column
 ![atrifacts](https://user-images.githubusercontent.com/17237559/160299188-ed222fbe-3764-4868-94fe-4edc74b4263b.png)
 - It is difficult to figure out the present day for specific non Gregorian calendar
 
