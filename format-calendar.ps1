@@ -22,9 +22,10 @@ function format-calendar {
 
         [alias('long')][switch]$wide, # uses AbbreviatedDayNames for ShortestDayNames
 
-        [switch]$latin, # experimental; use english instead of national names
+        [array]$weekend, # weekend indices to highlight as weekend
+
+        [switch]$latin, # experimental; use english names instead of national ones
         [switch]$equalwidth, # experimental; for vertical calendars; equal width columns
-        #[switch]$noWeekend, # experimental; do not highlight weekends
         [switch]$dayOff # holiday list; duplicate $highlightDate?
     )
 
@@ -53,20 +54,38 @@ function format-calendar {
     }
     # Update CSS from user-defined table
     if ($PSCalendarConfig -and $PSCalendarConfig.count) {
+        if ($PSCalendarConfig['weekendlist']) {$weekend = $PSCalendarConfig['weekendlist']}
         #$opt = Write-Output titleCase orientation wide noStyle monthOnly trim latin
         $PSCalendarConfig.Keys.foreach{
-            $calendarStyle[$_] = $PSCalendarConfig[$_]
+            if ($PSCalendarConfig[$_]) { # filter empty values
+                $calendarStyle[$_] = $PSCalendarConfig[$_]
+            }
         }
     }
 
     # Initialize reference points
-    $curMonth  = [datetime]::new($inputObject.year,$inputObject.month,1) # get-date -year $inputObject.year -month $inputObject.month -day 1 -hour 0 -minute 0 -second 0
-    $fd        = $inputObject.firstday
-    $i1        = 6 - $fd
-    $i2        = if ($fd -eq 0) {0} else {$i1 + 1}
-    $weekend   = $i1,$i2 # weekend indices
+    $curMonth = [datetime]::new($inputObject.year,$inputObject.month,1) # get-date -year $inputObject.year -month $inputObject.month -day 1 -hour 0 -minute 0 -second 0
+    $fd = $inputObject.firstday    
     $weekindex = (0..6+0..6)[$fd..($fd + 6)] # day sequence FDW-aware index
-    $culture   = [system.globalization.cultureinfo]::CurrentCulture
+    # Validate weekend indices
+    if ($weekend) { 
+        <# if ($weekend -notmatch '0|6') { # culture-specific weekend
+        #if ($weekend -notmatch 'sat|sun') { # custom weekend
+            #[System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.DayNames
+            #$dn = [cultureinfo]::new('en-us').DateTimeFormat.DayNames
+            #$i1,$i2 = $weekend | ForEach-Object {[array]::IndexOf($dn,$_)}
+            #--$i1 = if ($fd -ge 2) {$fd - 2} else {5 - $fd}
+            #--$i2 = if ($fd -ge 1) {$fd - 1} else {6 - $fd}
+        }
+        else { # world-wide weekend #>
+        if (-not ($weekend -notmatch '0|6')) { # world-wide weekend
+            $i1 = 6 - $fd
+            $i2 = if ($fd -eq 0) {0} else {$i1 + 1}
+            $weekend = $i1,$i2
+        }
+        $calendarStyle['weekendlist'] = $weekend
+    }
+    $culture = [system.globalization.cultureinfo]::CurrentCulture #[System.Threading.Thread]::CurrentThread.CurrentCulture
     #if ($latin) {$culture = [system.globalization.cultureinfo]::new('en-us')}
 
     if (-not $noStyle -and $highlightDate) { # not finished
@@ -100,12 +119,12 @@ function format-calendar {
         }
     }
 
-    # Align week day names
+    # Align week day names by length
     # in some cultures short day names can vary in length, calculate the maximum width
     # in some cultures visual and calculated length can vary - font rendering issue
     $max = ($abbreviated.foreach{$_.length} | Measure-Object -Maximum).Maximum
     # PROBLEM: in some cultures 1 char takes 2 positions on screen
-    # it is impossible here to exactly figure out the font subset to adjust day name title width
+    # impossible here to exactly figure out the font subset to adjust day name title width
     $exclude = $culture.name -match '^(ja-?|zh-?|sa-|hi-?|ko-?)'
     # title width should be at least 2
     if ($max -lt 2 -and -not $exclude) {$max = 2}
@@ -117,16 +136,16 @@ function format-calendar {
         $abbreviated.foreach{$_.padright($max,' ')}
     }
     
-    $wi        = $weekend
-    $days      = $abbreviated[$weekindex].foreach{$_.replace('.','')}
-    $weekdays  = $days
-    $weekend   = $weekdays[$weekend] # not nice to redefined a variable
-    if ($orientation -eq 'v') {
-        # because a day object from The Collector exposes day name in English
-        # $weekend should contain full day names in English as well
-        #$weekend = [cultureinfo]::CurrentCulture.DateTimeFormat.DayNames[$weekindex][$wi] + 
-        #[cultureinfo]::CurrentUICulture.DateTimeFormat.DayNames[$weekindex][$wi] +
-        $weekend = [cultureinfo]::new('en-us').DateTimeFormat.DayNames[$weekindex][$wi]
+    $days     = $abbreviated[$weekindex].foreach{$_.replace('.','')}
+    $weekdays = $days
+    if ($weekend) {
+        $weekend  = if ($orientation -eq 'v') { # not nice to redefine a variable
+            # because a day object from the Collector exposes day name in English
+            # $weekend should contain full day names in English as well
+            #[cultureinfo]::CurrentCulture.DateTimeFormat.DayNames[$weekindex][$weekend] + 
+            #[cultureinfo]::CurrentUICulture.DateTimeFormat.DayNames[$weekindex][$weekend] +
+            [cultureinfo]::new('en-us').DateTimeFormat.DayNames[$weekindex][$weekend]
+        } else {$weekdays[$weekend]}
     }
     $headWidth = $weekdays[0].length
     if ($headWidth -lt 2) {$headWidth = 2}
@@ -165,8 +184,9 @@ function format-calendar {
                 $value = "$d".padleft($headWidth, ' ')
                 #. $hlday $week.$day $day
                 if (($week.$day.date -eq [datetime]::today) -AND -Not $noStyle -and -not $cm) {
-                    "{0}{1}{2}" -f $calendarStyle.Today, $value, $closeAnsi
-    
+                    if ($value.Length -gt 2) {
+                        "{0}{1}{2}{3}" -f ($value -replace '\d'), $calendarStyle.Today, ($value.TrimStart()), $closeAnsi
+                    } else {"{0}{1}{2}" -f $calendarStyle.Today, $value, $closeAnsi}
                 }
                 elseif (($highlightDate -contains $week.$day.date) -AND -Not $noStyle) {
                     "{0}{1}{2}" -f $calendarStyle.Highlight, $value, $closeAnsi
@@ -225,7 +245,7 @@ function format-calendar {
                     "{0}{1}{2}" -f $calendarStyle.Highlight, $value, $closeAnsi
                 }
                 else {
-                    # NOTE: $day.DayOfWeek is always English so $weekend should contain English names
+                    # $day.DayOfWeek is always English so $weekend should contain English names as well
                     if ($noStyle) {$value}
                     elseif ($day.DayOfWeek -in $weekend -and $fd -in 0,1) {
                         $style = if ($trails) {'Trails'} else {'Weekend'}
