@@ -18,7 +18,7 @@ README.md
 
 ![pscal](https://user-images.githubusercontent.com/17237559/158593488-c95aa3bd-badd-4fc2-a549-21f790f7a537.png)
 
-`Controller` is a high-level end-user commands. `Collector`, `Formatter` are internal helpers but can be used all alone.
+`Controller` is a high-level end-user commands. `Collector`, `Formatter` are internal helpers but can be used all alone, in accordance with the pipeline interfaces.
 
 ### MVC model mapping
 
@@ -41,7 +41,7 @@ README.md
 - `ShortestDayNames` property values can be non-unique
 - Visual and calculated length of short names can vary (It seems to be a font rendering issue: [Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies)). The formatter tries to adjust day name titles by max width 
 - The beginning of the week is not only Mon/Sun
-- If Mon/Sun is not the beginning of the week, what are weekend?
+<!-- - If Mon/Sun is not the beginning of the week, what are weekend? -->
 - No certainty whether Sat/Sun are world-wide weekend/dayoff days
 - In some cultures 1 char takes 2 positions on screen
 - There are 3 categories of culture issues
@@ -125,17 +125,17 @@ Set-PsCss [-title <ANSI_color>] [-dayofweek <ANSI_color>]
 ```
 
 <table><tbody>
-<tr><td valign="top"><code>-title</code>, <code>&#8209;dayofweek</code>, <br/><code>&#8209;today</code>, <code>&#8209;highlight</code>, <br/><code>&#8209;weekend</code>, <code>&#8209;holiday</code>,  <br/><code>&#8209;preHoliday</code>, <code>&#8209;trails</code></td><td valign="top">These parameters set new calendar colors/styles.</td></tr>
+<tr><td valign="top"><code>-title</code>, <code>&#8209;dayofweek</code>, <br/><code>&#8209;today</code>, <code>&#8209;highlight</code>, <br/><code>&#8209;weekend</code>, <code>&#8209;holiday</code>,  <br/><code>&#8209;preHoliday</code>, <code>&#8209;trails</code></td><td valign="top">These parameters set new calendar colors/styles using ANSI escape sequences.</td></tr>
 
-<tr><td valign="top"><code>&#8209;orientation</code></td><td>Sets default calendar type.</td></tr>
+<tr><td valign="top"><code>&#8209;orientation</code></td><td>Sets default calendar type. Valid values are <code>h</code>,<code>v</code>.</td></tr>
 
-<tr><td valign="top"><code>&#8209;titleCase</code></td><td>Sets default calendar titles case.</td></tr>
+<tr><td valign="top"><code>&#8209;titleCase</code></td><td>Sets default calendar titles case. Valid values are <code>u</code>,<code>l</code>,<code>t</code>.</td></tr>
 
 <tr><td valign="top"><code>&#8209;trim</code></td><td>Sets default display mode for the non-current month days.</td></tr>
 
 <tr><td valign="top"><code>&#8209;latin</code></td><td>[experimental] Sets English titles as default that prevents incorrect screen text alignment for problem cultures.</td></tr>
 
-<tr><td valign="top"><code>&#8209;weekend</code></td><td>Makes it possible to highlight specific days as weekend.</td></tr>
+<tr><td valign="top"><code>&#8209;weekend</code></td><td>Makes it possible to highlight specific days as weekend. Valid values are English day names.</td></tr>
 
 <tr><td valign="top"><code>&#8209;remove</code></td><td>Removes one or more parameters from user CSS.</td></tr>
 
@@ -144,11 +144,21 @@ Set-PsCss [-title <ANSI_color>] [-dayofweek <ANSI_color>]
 <tr><td valign="top"><code>&#8209;run</code></td><td><i>The technique of safe execution.</i><br/>Allows to apply changes. If this parameter is not specified the command will show how new CSS would look.<br/>This parameter prevents accidental data change/corruption so it makes the command safe by default. It is not so important for this project but that is a principle of safe execution used far before PowerShell.</td></tr>
 </tbody></table>
 
-**Get-PsCss**
-
 ```powershell
-Get-PsCss [-default]
+# Example 1: Set calendar type to "Vertical", make all titles "Upper", cut trailing months, highlight Friday/Saturday as weekend
+Set-PsCss ‑orientation v ‑titleCase u ‑trim ‑weekend fri,sa ‑run
+
+# Example 2: Clear all previously installed user settings
+Set-PsCss -clear ‑run
+
+# Example 3: Explore existing CSS
+Set-PsCss
+
+# Example 4: Remove unneeded parameters from CSS
+Set-PsCss -remove trim,dayofweek ‑run
 ```
+
+**Get-PsCss**
 
 <table><tbody>
 <tr><td><code>&#8209;default</code></td>
@@ -235,8 +245,9 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 ## Known Issues
 
 - Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
-- Windows and VSCode Terminal visual artifacts in the last column because of certain ANSI codes
-- It is difficult to figure out the present day for a specific non Gregorian calendar
+- Certain ANSI codes cause Windows and VSCode Terminal display artifacts in the last column
+![atrifacts](https://user-images.githubusercontent.com/17237559/160299188-ed222fbe-3764-4868-94fe-4edc74b4263b.png)
+- It is difficult to figure out the present day for specific non Gregorian calendar
 
 ## ToDo and Experimental
 
