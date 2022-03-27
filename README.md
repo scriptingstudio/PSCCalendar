@@ -36,15 +36,16 @@ README.md
 
 ## Notes on Culture
 
+- `$PSCulture` and `$PSUICulture` of the current session can be different
 - Short day names can be different length
-- `ShortestDayNames` property values can be not unique
+- `ShortestDayNames` property values can be non-unique
 - Visual and calculated length of short names can vary (It seems to be a font rendering issue: [Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies)). The formatter tries to adjust day name titles by max width 
 - The beginning of the week is not only Mon/Sun
-- If Mon/Sun is not the beginning of the week, what are weekends?
+- If Mon/Sun is not the beginning of the week, what are weekend?
 - No certainty whether Sat/Sun are world-wide weekend/dayoff days
 - In some cultures 1 char takes 2 positions on screen
 - There are 3 categories of culture issues
-    - **Critical** (specific non Gregorian Calendar): ar, ar-SA, yav\* - **FIXED**
+    - **Critical** (specific non Gregorian calendars): ar, ar-SA, yav\*
     - **Warning** (font rendering): as-\*, az, az-Latn, az-Latn-AZ, bn, bn-\*, bo, bo-\*, br, br-\*, brx\*, ccp, ccp-\*, cu, cu-\*, doi, doi-\*, dua, dua-\*, dv, dv-\*, dz, dz-\*, ewo, ewo-\*, ff, ff-\*, gu, gu-\*, hi, hi-\*, ii, ii-\*, jgo, jgo-\*, kok, kok-\*, ks, ks-arab\*, mai\*, mr\*, my\*, ne\*, nmg\*, nnh\*, or\*, pcm\*, sa, sa-\*, sd-deva\*, si\*, te, te-\*, uz-arab\*, yi\*, yo\*, zh-Hans\*
     - **Information** (small visual shift): km, km-\*, kn, kn-\*, pa-guru, pa-in, nus\*, ksf\*, ml\*, mni\*
 - Font rendering issue
@@ -119,7 +120,7 @@ Set-PsCss [-title <ANSI_color>] [-dayofweek <ANSI_color>]
 [-weekend <ANSI_color>] [-holiday <ANSI_color>] 
 [-preHoliday <ANSI_color>] [-trails <ANSI_color>] 
 [-orientation h|v] [-titleCase u|l|t] [-trim:$true|$false] 
-[-latin:$true|$false]
+[-latin:$true|$false] [-weekend <dayname[]>]
 [-remove <style_name[]>] [-clear] [-run]
 ```
 
@@ -133,6 +134,8 @@ Set-PsCss [-title <ANSI_color>] [-dayofweek <ANSI_color>]
 <tr><td valign="top"><code>&#8209;trim</code></td><td>Sets default display mode for the non-current month days.</td></tr>
 
 <tr><td valign="top"><code>&#8209;latin</code></td><td>[experimental] Sets English titles as default that prevents incorrect screen text alignment for problem cultures.</td></tr>
+
+<tr><td valign="top"><code>&#8209;weekend</code></td><td>Makes it possible to highlight specific days as weekend.</td></tr>
 
 <tr><td valign="top"><code>&#8209;remove</code></td><td>Removes one or more parameters from user CSS.</td></tr>
 
@@ -159,12 +162,14 @@ Get-PsCss [-default]
 ### Syntax
 
 ```powershell
-Find-Culture [[-culture] <string>]
+Find-Culture [[-culture] <string>] [-datetimeformat]
 ```
 
 <table><tbody>
-<tr><td><code>&#8209;culture</code></td>
+<tr><td valign="top"><code>&#8209;culture</code></td>
 <td>Search mask.<br/>The finder uses regular expressions to filter cultures by short and long culture names.</td></tr>
+<tr><td valign="top"><code>&#8209;datetimeformat</code></td>
+<td>Exposes only <code>DateTimeFormat</code> property for specified culture.<br>Alias: <code>dtf</code></td></tr>
 </tbody></table>
 
 ### Examples
@@ -230,15 +235,18 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 ## Known Issues
 
 - Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
+- Windows and VSCode Terminal visual artifacts in the last column because of certain ANSI codes
+- It is difficult to figure out the present day for a specific non Gregorian calendar
 
 ## ToDo and Experimental
 
 - Fix or work around culture issues
-- Multicolumn (grid) by month output
-- International holiday highlighting
-- Adaptive coloring
+- [E] Multicolumn (grid) by month output
+- [E] International holiday highlighting
+- [E] Adaptive coloring
 - CSS enhancements
 - Controller parameters optimization
+- Cleaning: remove test/unused/orphan code
 
 ## Credits
 
