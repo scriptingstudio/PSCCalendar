@@ -188,17 +188,17 @@ Find-Culture [[-culture] <string>] [-datetimeformat]
 # find culture by short name
 Find-Culture fr-fr
 
-Culture      : French (France) # long name
-Id           : fr-FR # short name
-FDW          : Monday
-Calendar     : Gregorian
-OtherFormats : System.Globalization.DateTimeFormatInfo
+Culture    : French (France) # long name
+Id         : fr-FR # short name
+FDW        : Monday
+Calendar   : Gregorian
+DateFormat : System.Globalization.DateTimeFormatInfo
 
 # find culture by long name
 Find-Culture French | ft
 
-Culture                            Id          FDW Calendar  OtherFormats
--------                            --          --- --------  ------------
+Culture                            Id          FDW Calendar  DateFormat
+-------                            --          --- --------  ----------
 French                             fr       Monday Gregorian System.Globalization.DateTimeFormatInfo
 French (Caribbean)                 fr-029   Monday Gregorian System.Globalization.DateTimeFormatInfo
 French (Belgium)                   fr-BE    Monday Gregorian System.Globalization.DateTimeFormatInfo
@@ -212,7 +212,7 @@ French (Central African Republic)  fr-CF    Monday Gregorian System.Globalizatio
 ...
 
 # exploring all formats
-(Find-Culture fr-fr).OtherFormats
+(Find-Culture fr-fr).DateFormat
 
 AMDesignator                     :
 Calendar                         : System.Globalization.GregorianCalendar
@@ -244,10 +244,10 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 
 ## Known Issues
 
-- Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
-- Windows and VSCode Terminal window resize with certain ANSI codes creates display artifacts in the last column
+- [ ] Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
+
+- [ ] Windows and VSCode Terminal window resize with certain ANSI codes creates display artifacts in the last column
 ![atrifacts](https://user-images.githubusercontent.com/17237559/160299188-ed222fbe-3764-4868-94fe-4edc74b4263b.png)
-- It is difficult to figure out the present day for specific non Gregorian calendar
 
 ## ToDo and Experimental
 
@@ -257,6 +257,7 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 - [E] Adaptive coloring
 - CSS enhancements
 - Controller parameters optimization
+- Sources loader
 - Cleaning: remove test/unused/orphan code
 
 ## Credits
