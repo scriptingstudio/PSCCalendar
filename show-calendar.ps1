@@ -1,5 +1,3 @@
-# This is a customized edition of Get-Calendar function by Jeff Hicks (https://github.com/jdhitsolutions/PSCalendar)
-
 function Show-Calendar {
 # Status: in dev
 # begin,process,end blocks are useless if pileline-awareness is not configured; just for visual structure?
@@ -46,9 +44,10 @@ function Show-Calendar {
         
         [alias('language')][cultureinfo]$culture,
         #[ValidateCount(2,2)]
-        [array]$weekend, # day names as weekend
+        [array]$weekend, # weekend day names
         
         [switch]$latin, # experimental; english titles instead of national; for problem cultures?
+
         [Parameter(ParameterSetName = "span")]
         [switch]$grid, # experimental; [int]
         [switch]$dayOff # experimental; duplicate $highlightDate?
@@ -176,17 +175,19 @@ function Show-Calendar {
 # Controller Auxiliary Tools
 
 function Find-Culture ([string]$culture, [alias('dtf')][switch]$DateTimeFormat) {
-# Culture Expolrer
+# Simple culture explorer
     if (-not $culture) {$culture = '.*'}
     [cultureinfo]::GetCultures('allCultures').where{$_.Name,$_.DisplayName -match $culture} | . { process {
-        $dtf = [cultureinfo]::new($_).DateTimeFormat
-        if ($DateTimeFormat) {$dtf; return}
+        $cultureinfo = [cultureinfo]::new($_)
+        if ($DateTimeFormat) {return $cultureinfo.DateTimeFormat}
+        $dtf = $cultureinfo.DateTimeFormat
         [pscustomobject]@{
             Culture      = $_.DisplayName
             Id           = $_.Name
             FDW          = $dtf.FirstDayOfWeek
             Calendar     = $dtf.Calendar.tostring().split('.')[2].replace('Calendar','')
-            OtherFormats = $dtf
+            DateFormat   = $dtf
+            NumberFormat = $cultureinfo.NumberFormat
         }
     }}
 } # END Find-Culture
@@ -210,6 +211,7 @@ function Set-PsCss {
         [switch]$latin, # experimental
         [ValidateCount(2,2)]
         [string[]]$weekendlist,
+        #[switch]$noStyle,
 
         [alias('rm','del')][string[]]$remove,
         [alias('default','reset')][switch]$clear,
@@ -219,7 +221,7 @@ function Set-PsCss {
 
     $ansi = '<ANSI_color>'
     $bl   = '$true|$false'
-    Write-Host "USAGE: set-pscss [-title $ansi] [-dayofweek $ansi] [-today $ansi] [-highlight $ansi] [-weekend $ansi] [-holiday $ansi] [-preHoliday $ansi] [-trails $ansi] [-orientation h|v] [-titleCase u|l|t] [-trim:$bl] [-latin:$bl] [-weekendlist <dayname[]>] [-remove <string[]>] [-clear] [-run]`n"
+    Write-Host "USAGE: set-pscss [-title $ansi] [-dayofweek $ansi] [-today $ansi] [-highlight $ansi] [-weekend $ansi] [-holiday $ansi] [-preHoliday $ansi] [-trails $ansi] [-orientation h|v] [-titleCase u|l|t] [-trim:$bl] [-latin:$bl] [-weekendlist <string[]>] [-remove <string[]>] [-clear] [-run]`n"
 
     $css = Get-Variable -name PSCalendarConfig -scope Script -ErrorAction 0
     $css = if (-not $css) {
@@ -239,7 +241,7 @@ function Set-PsCss {
     }
 
     $ansi = Write-Output Title DayOfWeek Today Highlight Weekend Holiday PreHoliday Trails
-    $opt  = $ansi + (Write-Output titleCase trim orientation latin weekendlist)
+    $opt  = $ansi + (Write-Output titleCase trim orientation latin weekendlist) # noStyle
     $opt.foreach{
         if ($PSBoundParameters.ContainsKey($_)) {
             # filter empty values
