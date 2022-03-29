@@ -30,9 +30,9 @@ README.md
 
 | Tier       | Commands | Files | Help |
 |------------|----------|-------|------|
-| Controller | Show-Calendar<br/>Find-Culture<br/>Set-PsCss<br/>Get-PsCss | show-calendar.ps1 | show-calendar.md<br/>README.md |
-| Collector  | Get-CalendarMonth | get-calendarmonth.ps1 | |
-| Formatter  | Format-Calendar | format-calendar.ps1 | |
+| Controller | Show-Calendar<br/>Find-Culture<br/>Set-PsCss<br/>Get-PsCss | controller.ps1 | show-calendar.md<br/>README.md |
+| Collector  | Get-CalendarMonth | collector.ps1 | |
+| Formatter  | Format-Calendar | formatter.ps1 | |
 
 ## Notes on Culture
 
@@ -88,7 +88,7 @@ Count Name
 
 ## How to Use
 
-- Copy content of `get-calendarmonth.ps1`, `format-calendar.ps1`, and `show-calendar.ps1` files to your script or dotsource it to PowerShell console/terminal
+- Copy content of `controller.ps1`, `formatter.ps1`, and `collector.ps1` files to your script or dotsource it to PowerShell console/terminal
 - See examples [here](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md)
 
 ## CSS – Calendar Style Sheet
@@ -133,7 +133,7 @@ Set-PsCss [-title <ANSI_color>] [-dayofweek <ANSI_color>]
 
 <tr><td valign="top"><code>&#8209;trim</code></td><td>Sets default display mode for the non-current month days.</td></tr>
 
-<tr><td valign="top"><code>&#8209;latin</code></td><td>[experimental] Sets English titles as default that prevents incorrect screen text alignment for problem cultures.</td></tr>
+<tr><td valign="top"><code>&#8209;latin</code></td><td>[experimental] Sets English titles as default that prevents incorrect screen text alignment for problem cultures (temporary workaround).</td></tr>
 
 <tr><td valign="top"><code>&#8209;weekend</code></td><td>Makes it possible to highlight specific days as weekend. Valid values are English day names.</td></tr>
 
@@ -246,7 +246,7 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 
 - [ ] Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
 
-- [ ] Windows and VSCode Terminal window resize with certain ANSI codes creates display artifacts in the last column
+- [ ] Windows and VSCode Terminal window resize with certain ANSI codes creates display artifacts in the last column<br>
 ![atrifacts](https://user-images.githubusercontent.com/17237559/160299188-ed222fbe-3764-4868-94fe-4edc74b4263b.png)
 
 ## ToDo and Experimental
@@ -254,7 +254,7 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 - Fix or work around culture issues
 - [E] Multicolumn (grid) by month output
 - [E] International holiday highlighting
-- [E] Adaptive coloring
+- [E] Adaptive coloring/highlighting
 - CSS enhancements
 - Controller parameters optimization
 - Sources loader
