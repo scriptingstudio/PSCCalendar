@@ -1,3 +1,5 @@
+# Formatter v2.0
+
 function format-calendar {
 # Calendar formatter; receives data from the collector tier
 # Input: hashtable
@@ -7,8 +9,7 @@ function format-calendar {
         [Parameter(Position=0, Mandatory, ValueFromPipeline)]
         $inputObject,
 
-        [string[]]$highlightDate, # accepts full and short date strings,
-        [alias('plain','noansi')][switch]$noStyle,
+        [string[]]$highlightDate, # accepts full and short date strings
 
         [ValidateSet('h','v')][alias('type','mode','transpose')]
         [string]$orientation = 'h',
@@ -16,6 +17,8 @@ function format-calendar {
         [switch]$monthOnly, # month title style; displays no year
 
         [switch]$trim, # cuts trailing days
+
+        [alias('plain','noansi')][switch]$noStyle,
 
         [ValidateSet('u','l','t')]
         [string]$titleCase, # day name case option
@@ -68,7 +71,7 @@ function format-calendar {
     $weekindex = (0..6+0..6)[$fd..($fd + 6)] # days series FDW-aware index
     # Validate weekend indices
     if ($weekend) { 
-        <# if ($weekend -notmatch '0|6') { # culture-specific weekend
+        <# if ($weekend -notmatch '0|6') { # culture-specific weekend TOBE DELETED
         #if ($weekend -notmatch 'sat|sun') { # custom weekend
             #[System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.DayNames
             #$dn = [cultureinfo]::new('en-us').DateTimeFormat.DayNames
@@ -110,7 +113,7 @@ function format-calendar {
     #if ($abbreviated.foreach('length') -eq 1) {
     #    $abbreviated = $culture.DateTimeFormat.AbbreviatedDayNames
     #} else
-    if ($headstyle -eq 'ShortestDayNames') { # validate name series
+    if ($headstyle -eq 'ShortestDayNames') { # validate day name series
         # NOTE: ShortestDayNames can be non-unique
         $sdn = $abbreviated | Sort-Object -Unique
         if ($sdn.count -ne $abbreviated.count) {
@@ -127,7 +130,7 @@ function format-calendar {
     $exclude = $culture.name -match '^(ja-?|zh-?|sa-|hi-?|ko-?)'
     # title width should be at least 2
     if ($max -lt 2 -and -not $exclude) {$max = 2}
-    ##if ($orientation -eq 'v') {$max = -$max} # compact code - another way
+    ##if ($orientation -eq 'v') {$max = -$max} # compact code = another way
     ##$abbreviated = $abbreviated.foreach{"{0,$max}" -f $_}
     $abbreviated = if ($orientation -eq 'h') {
         $abbreviated.foreach{$_.padleft($max,' ')}
@@ -259,7 +262,7 @@ function format-calendar {
             if (-not $noStyle) {
                 $name = "{0}{1}{2}" -f $calendarStyle.DayofWeek, $name, $closeAnsi
             }
-            "{0}${dnpad}{1}" -f $name, ($row -join $separator) # $dnpad working weird
+            "{0}${dnpad}{1}" -f $name, ($row -join $separator) # $dnpad working weird - TODO
         }
     } # end orientation formatter
 
@@ -273,7 +276,7 @@ function format-calendar {
         #else {'{0} {1}' -f $curMonth.tostring('MMMM'), $curMonth.tostring('yyyy')}
         else {'{0} {1}' -f $cm, $curMonth.year}
     }
-    if ($psversiontable.PSVersion.Major -gt 5 -or $titleCase -eq 't') { # force T
+    if ($psversiontable.PSVersion.Major -gt 5 -or $titleCase -eq 't') { # force T case
         $plainHead = $culture.TextInfo.ToTitleCase($plainHead.ToLower())
     }
     $head = if ($noStyle) {$plainHead} else {
@@ -298,3 +301,5 @@ function format-calendar {
     }
     $month
 } # END format-calendar
+
+#function gridformatter {}
