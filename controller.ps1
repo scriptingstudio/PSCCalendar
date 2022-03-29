@@ -1,3 +1,5 @@
+# Controller v1.4
+
 function Show-Calendar {
 # Status: in dev
 # begin,process,end blocks are useless if pileline-awareness is not configured; just for visual structure?
@@ -16,11 +18,11 @@ function Show-Calendar {
         [string]$start,
 
         [Parameter(HelpMessage = "Enter an ending date for the month like 3/1/2020 that is correct for your culture.", ParameterSetName = "span")]
-        [string]$end, # if not specified ($start + 1 month)
+        [string]$end, # if not specified $end = $start + 1 month
 
         [Parameter(HelpMessage = "Specify a collection of dates to highlight in the calendar display.")]
         [ValidateNotNullorEmpty()]
-        [alias('highlightDay','hd')][string[]]$highlightDate, # alias "weekend"
+        [alias('highlightDay','hd')][string[]]$highlightDate,
 
         [Parameter(HelpMessage = "Specify the first day of the week.")]
         [ValidateNotNullOrEmpty()]
@@ -32,7 +34,7 @@ function Show-Calendar {
         [Parameter(HelpMessage = "Do not show leading/trailing days of non-current month.")]
         [switch]$trim, # cuts trailing days
 
-        [switch]$monthOnly, # month title style; displays no year
+        [switch]$monthOnly, # month title style; if specified will cut the year off
 
         [ValidateSet('h','v')]
         [alias('type','mode','transpose')][string]$orientation = 'h',
@@ -42,11 +44,12 @@ function Show-Calendar {
 
         [alias('long')][switch]$wide, # uses AbbreviatedDayNames instead ShortestDayNames
         
-        [alias('language')][cultureinfo]$culture,
+        [alias('language')][System.Globalization.CultureInfo]$culture,
+
         #[ValidateCount(2,2)]
         [array]$weekend, # weekend day names
         
-        [switch]$latin, # experimental; english titles instead of national; for problem cultures?
+        [switch]$latin, # experimental; english titles instead of national; workaround for problem cultures
 
         [Parameter(ParameterSetName = "span")]
         [switch]$grid, # experimental; [int]
@@ -94,16 +97,16 @@ function Show-Calendar {
             }
         } else {$month = [datetime]::today.tostring('MMMM')}
 
-        # Enforce NoStyle if running in the PowerShell ISE; Is ISE still needed?
+        # Enforce NoStyle if running in the PowerShell ISE; just in case
         if ($host.name -match "ISE Host") {$nostyle = $true}
         if ($nostyle) {$trim = $true}
 
-        $internationalDayOff = ''
+        $internationalDayOff = '' # TODO
 
         # Validate weekend day names and convert em to indices
         if ($weekend) {
-            if ($weekend -match 'ww|%|default|^d(ef(ault)?)?$') {$weekend = 'sat','sun'}
-            $weekend = switch -regex ($weekend) {
+            if ($weekend -match 'ww|%|default|^d(ef(ault)?)?$') {$weekend = 'sa','su'}
+            [string[]]$weekend = switch -regex ($weekend) {
                 'm|1'   {'Monday'}
                 '^tu|2' {'Tuesday'}
                 'w|3'   {'Wednesday'}
@@ -113,14 +116,14 @@ function Show-Calendar {
                 'su|7'  {'Sunday'}
             }
             if ($weekend.count -lt 2) {
-                Write-Warning "Possible errors: Invalid day name specified. Valid values are of English day names. Specify 2 days. The number of provided arguments is fewer than the minimum number of allowed arguments (2)."
+                Write-Warning "Possible errors: 1 - Invalid day name specified. Valid values are of English day names. Specify 2 days. 2 - The number of provided arguments is fewer than the minimum number of allowed arguments (2)."
                 $weekend = $null
             } else {
                 $dn = [cultureinfo]::new('en-us').DateTimeFormat.DayNames
                 $weekend = $weekend[0,1] | ForEach-Object {[array]::IndexOf($dn,$_)}
             }
         }
-    }
+    } # begin
     Process {
         # Validate $start and $end
         if ($PSCmdlet.ParameterSetName -eq 'span') {
@@ -145,7 +148,7 @@ function Show-Calendar {
         if ($startd.Year -ne $endd.Year) {$monthOnly = $false}
         $equalwidth = $startd.Month -ne $endd.Month # experimental
         while ($startd -le $endd) {
-            $params = @{ # format controls
+            $params = @{ # formatter controls
                 highlightDate  = $highlightDate        
                 nostyle        = $nostyle
                 trim           = $trim
@@ -161,7 +164,7 @@ function Show-Calendar {
             # Get data (Collector), format output (Formatter)
             get-calendarMonth -start $startd -firstday $firstDay | format-calendar @params
 
-            try {$startd = $startd.AddMonths(1)} catch {break} # next month
+            try {$startd = $startd.AddMonths(1)} catch {break} # select next month
         }
     } # process
     End {
@@ -171,7 +174,7 @@ function Show-Calendar {
         }
     }
 } # END Show-Calendar
-
+    
 # Controller Auxiliary Tools
 
 function Find-Culture ([string]$culture, [alias('dtf')][switch]$DateTimeFormat) {
