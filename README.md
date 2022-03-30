@@ -88,7 +88,7 @@ Count Name
 
 ## How to Use
 
-- Copy content of `controller.ps1`, `formatter.ps1`, and `collector.ps1` files to your script or dotsource it to PowerShell console/terminal
+- Run command `import-module <path>\psccalendar.psm1`
 - See examples [here](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md)
 
 ## CSS – Calendar Style Sheet
@@ -244,6 +244,8 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 
 ## Known Issues
 
+- [ ] The number of day columns of the vertical calendar vary (4-6), so it is difficult to align the titles if number of months greater 2
+
 - [ ] Some cultures display day names incorrectly ([Example 7](https://github.com/scriptingstudio/PSCCalendar/blob/main/show-calendar.md#example-7-culture-font-rendering-anomalies))
 
 - [ ] Windows and VSCode Terminal window resize with certain ANSI codes creates display artifacts in the last column<br>
@@ -257,7 +259,6 @@ MonthGenitiveNames               : {janvier, février, mars, avril...}
 - [E] Adaptive coloring/highlighting
 - CSS enhancements
 - Controller parameters optimization
-- Sources loader
 - Cleaning: remove test/unused/orphan code
 
 ## Credits
