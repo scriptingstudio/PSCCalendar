@@ -121,11 +121,11 @@ function format-calendar {
         }
     }
 
-    # Align week day names by length
+    # Adjust week day names by length
     # in some cultures short day names can vary in length, calculate the maximum width
     # in some cultures visual and calculated length can vary - font rendering issue
     $max = ($abbreviated.foreach{$_.length} | Measure-Object -Maximum).Maximum
-    # PROBLEM: in some cultures 1 char takes 2 positions on screen
+    # ISSUE: in some cultures 1 char takes 2 positions on screen
     # impossible here to exactly figure out the font subset to adjust day name title width
     $exclude = $culture.name -match '^(ja-?|zh-?|sa-|hi-?|ko-?)'
     # title width should be at least 2
@@ -167,13 +167,12 @@ function format-calendar {
 
     # Convert from binary to text
     #$hlday = {param ($day, $wkday)} experimental parameterization
-    $today = [datetime]::today.day
+    $today = [datetime]::today
     if ($orientation -eq 'h') {
         $month = foreach ($week in ($calendar | Select-Object $calHeader)) {
             $wk = foreach ($day in $weekdays) {
                 $trails = $false
-                $cm = $curMonth.month -ne $week.$day.month
-                if ($cm) {
+                if ($curMonth.month -ne $week.$day.month) {
                     if ($trim) {
                         $day = $null
                         $d = ' '
@@ -186,12 +185,13 @@ function format-calendar {
                 }
                 $value = "$d".padleft($headWidth, ' ')
                 #. $hlday $week.$day $day
-                if (($week.$day.day -eq $today) -AND -Not $noStyle -and -not $cm) {
+                $cm = $week.$day.day -eq $today.day -AND $today.month -eq $week.$day.month
+                if (-not $noStyle -and $cm) {
                     if ($value.Length -gt 2) {
                         "{0}{1}{2}{3}" -f ($value -replace '\d'), $calendarStyle.Today, ($value.TrimStart()), $closeAnsi
                     } else {"{0}{1}{2}" -f $calendarStyle.Today, $value, $closeAnsi}
                 }
-                elseif (($highlightDate -contains $week.$day.date) -AND -Not $noStyle) {
+                elseif (($highlightDate -contains $week.$day.date) -AND -not $noStyle) {
                     "{0}{1}{2}" -f $calendarStyle.Highlight, $value, $closeAnsi
                 }
                 else {
@@ -223,8 +223,7 @@ function format-calendar {
             $i = 0 # column counter; used to resolve style issue
             $row = foreach ($day in $calendar.$name) {
                 $trails = $false
-                $cm = $curMonth.month -ne $day.month
-                if ($cm) {
+                if ($curMonth.month -ne $day.month) {
                     if ($trim) {
                         $day = $null
                         $d = ' '
@@ -241,10 +240,11 @@ function format-calendar {
                 else {"$d".padleft(2, ' ')}
                 $i++
                 #. $hlday $day $day.DayOfWeek
-                if (($day.date.day -eq $today) -AND -Not $noStyle -and -not $cm) {
+                $cm = $day.date.day -eq $today.day -AND $today.month -eq $day.month
+                if (-not $noStyle -and $cm) {
                     "{0}{1}{2}" -f $calendarStyle.Today, $value, $closeAnsi
                 }
-                elseif (($highlightDate -contains $day.date) -AND -Not $noStyle) {
+                elseif (($highlightDate -contains $day.date) -AND -not $noStyle) {
                     "{0}{1}{2}" -f $calendarStyle.Highlight, $value, $closeAnsi
                 }
                 else {
@@ -284,6 +284,8 @@ function format-calendar {
     }
 
     # centering calendar title; too complicated?
+    # ISSUE: V-calendar columns number vary (4-6), so the titles cannot be aligned
+    # workaround: accept that the number of day columns is always 6; it leads to visual disharmony in case of 1 month displayed
     $padhead = $separator.Length - 1
     [int]$pad = if ($orientation -eq 'v') {
         (($calendar.count+1)*(2 + $padhead) + $headWidth + 1 - $plainhead.Length) / 2
