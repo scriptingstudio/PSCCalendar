@@ -6,7 +6,7 @@ README.md
 
 # PSCCalendar
 
-***PSCCalendar*** is a simple culture-aware PowerShell console calendar engine/framework inspired by [@jdhitsolutions](https://github.com/jdhitsolutions/PSCalendar) PSCalendar module but significantly/totally rewritten/refactored. It is not technically a PowerShell module, just snippets/sketches as a sandbox to play with calendar ideas.
+***PSCCalendar*** is a simple culture-aware PowerShell console calendar engine/framework inspired by [@jdhitsolutions](https://github.com/jdhitsolutions/PSCalendar) PSCalendar module but considerably/totally rewritten/refactored. It is not technically a PowerShell module, just snippets/sketches as a sandbox to play with calendar ideas.
 
 `C` is for Console and Culture.
 
